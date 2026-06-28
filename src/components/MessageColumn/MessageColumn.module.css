@@ -1,0 +1,187 @@
+.messageColumn {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.columnHeader {
+  margin-bottom: 15px;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.columnTitle {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.connectionIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.connectionIndicator.connected {
+  background-color: #4CAF50;
+}
+
+.connectionIndicator.disconnected {
+  background-color: #f44336;
+}
+
+.connectionIndicator.connecting {
+  background-color: #FF9800;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.columnControls {
+  display: flex;
+  gap: 8px;
+}
+
+.controlBtn {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  color: #333;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.controlBtn:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+.disconnectBtn {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.disconnectBtn:hover {
+  background-color: #d32f2f !important;
+}
+
+.messageBox {
+  flex: 1;
+  overflow: auto;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 15px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  max-height: 400px;
+  min-height: 200px;
+}
+
+.messageBox::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messageBox::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.messageBox::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.messageBox::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.messagePre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  font-size: inherit;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.status {
+  font-size: 12px;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.status.connected {
+  color: #4CAF50;
+  background-color: #e8f5e8;
+  border-color: #c8e6c9;
+}
+
+.status.disconnected {
+  color: #f44336;
+  background-color: #ffebee;
+  border-color: #ffcdd2;
+}
+
+.status.connecting {
+  color: #FF9800;
+  background-color: #fff3e0;
+  border-color: #ffcc02;
+}
+
+.additionalInfo {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.bridgeInfo {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .messageColumn {
+    padding: 10px;
+  }
+  
+  .columnControls {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .controlBtn {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  
+  .messageBox {
+    min-height: 150px;
+    max-height: 250px;
+  }
+}

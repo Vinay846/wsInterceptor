@@ -1,0 +1,145 @@
+.errorModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.errorModalContent {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 25px;
+  border-radius: 20px;
+  width: 85%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  border: 1px solid #e5e7eb;
+}
+
+.errorModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.errorModalTitle {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.errorModalClose {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.errorModalClose:hover {
+  color: #333;
+  background-color: #f0f0f0;
+}
+
+.clearErrorsBtn {
+  padding: 8px 16px;
+  font-size: 12px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 15px;
+  transition: all 0.2s ease;
+}
+
+.clearErrorsBtn:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-1px);
+}
+
+.noErrors {
+  color: #666;
+  font-style: italic;
+}
+
+.errorItem {
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 10px rgba(244, 67, 54, 0.1);
+}
+
+.errorType {
+  font-weight: bold;
+  color: #c53030;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.errorMessage {
+  color: #2d3748;
+  margin-top: 5px;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.errorDetails {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  border: 1px solid #fbd5d5;
+}
+
+.errorDetailsLabel {
+  font-weight: 600;
+  color: #c53030;
+  font-size: 11px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.errorDetailsPre {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #4a5568;
+  margin: 0;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.errorTimestamp {
+  color: #718096;
+  font-size: 11px;
+  margin-top: 8px;
+  font-style: italic;
+}

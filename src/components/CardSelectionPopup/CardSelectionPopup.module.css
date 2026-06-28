@@ -1,0 +1,386 @@
+.cardPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(2px);
+}
+
+.cardPopupContent {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+  border: 1px solid #e5e7eb;
+}
+
+.cardPopupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.cardPopupTitle {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cardPopupClose {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #aaa;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardPopupClose:hover {
+  color: #333;
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.cardSection {
+  margin-bottom: 25px;
+}
+
+.cardSectionTitle {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Place Selection */
+.placeButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.placeButton {
+  padding: 12px 25px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #f9f9f9;
+  color: #333;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.placeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.placeButton.selected {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Suit Selection */
+.suitGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.suitButton {
+  padding: 20px;
+  border: 3px solid #ddd;
+  border-radius: 15px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.suitButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.suitButton.selected {
+  border-color: #2196F3;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+}
+
+.suitSymbol {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.suitName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Rank Selection */
+.rankGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.rankButton {
+  padding: 15px 8px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.rankButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.rankButton.selected {
+  border-color: #FF9800;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.rankSymbol {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.rankName {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Card Preview */
+.cardPreview {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.previewCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.previewCardContent {
+  background: white;
+  border: 2px solid #333;
+  border-radius: 10px;
+  width: 80px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.previewRank {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.previewSuit {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.previewInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.previewDetail {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+/* Action Buttons */
+.cardPopupActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.cardActionButton {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.resetButton {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+}
+
+.resetButton:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.cancelButton {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.cancelButton:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.confirmButton {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.confirmButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cardPopupContent {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .suitGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .rankGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .rankButton {
+    min-height: 60px;
+    padding: 10px 5px;
+  }
+
+  .suitButton {
+    min-height: 80px;
+    padding: 15px;
+  }
+
+  .previewCard {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .cardPopupActions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .placeButtons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

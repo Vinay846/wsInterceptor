@@ -1,0 +1,364 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 1600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid #e0e0e0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.toolButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.toolButtonActive {
+  background: rgba(76, 175, 80, 0.9) !important;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.closeButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: background 0.2s;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modalBody {
+  padding: 25px;
+  overflow-y: auto;
+  flex: 1;
+  background: #f5f5f5;
+}
+
+.tablesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.tableSection {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+}
+
+.tableName {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  text-transform: capitalize;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-left: 4px solid #667eea;
+  border-radius: 4px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 2px solid #333;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+}
+
+.dataTable thead {
+  background: #e8e8e8;
+}
+
+.indexHeader {
+  background: #d0d0d0;
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  min-width: 40px;
+}
+
+.colHeader {
+  background: #e8e8e8;
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  min-width: 60px;
+}
+
+.propHeader,
+.valueHeader {
+  background: #e8e8e8;
+  border: 1px solid #333;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.propHeader {
+  width: 30%;
+}
+
+.rowIndex {
+  background: #f0f0f0;
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #555;
+  min-width: 40px;
+}
+
+.dataCell {
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  color: #000;
+  background: white;
+  min-width: 60px;
+  transition: background 0.2s;
+}
+
+.dataCell:hover {
+  background: #f8f9fa;
+}
+
+.dataCell.editable {
+  cursor: pointer;
+}
+
+.dataCell.editable:hover {
+  background: #e3f2fd;
+}
+
+.propCell {
+  border: 1px solid #333;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #667eea;
+  background: #f8f9fa;
+}
+
+.valueCell {
+  border: 1px solid #333;
+  padding: 10px;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+  color: #2c3e50;
+  background: white;
+}
+
+.jsonPre {
+  margin: 0;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cellInput {
+  width: 100%;
+  padding: 4px;
+  border: 2px solid #2196f3;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  text-align: center;
+  background: #e3f2fd;
+  outline: none;
+}
+
+.cellInput:focus {
+  background: white;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.primitiveValue {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border: 2px solid #333;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  word-break: break-all;
+}
+
+.errorMessage,
+.infoMessage {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.errorMessage p:first-child,
+.infoMessage p:first-child {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.errorMessage p:last-child,
+.infoMessage p:last-child {
+  font-size: 14px;
+  color: #999;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  border-top: 2px solid #e0e0e0;
+  background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.footerLeft {
+  flex: 1;
+}
+
+.footerButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.footerText {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.editHint {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.applyButton {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.applyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.applyButton:active {
+  transform: translateY(0);
+}
+
+.closeFooterButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.closeFooterButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.closeFooterButton:active {
+  transform: translateY(0);
+}

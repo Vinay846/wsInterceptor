@@ -1,0 +1,226 @@
+.dataManagementSection {
+  background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+  border: 2px solid #2196F3;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+}
+
+.dataInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.dataRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dataRowHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dataLabel {
+  font-weight: 700;
+  color: #1976D2;
+  min-width: 120px;
+  font-size: 13px;
+}
+
+.dataCount {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 12px;
+  min-width: 25px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.gameIdBadge {
+  font-size: 10px;
+  padding: 3px 8px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.currentRoundIndicator {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 11px;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  flex: 1;
+}
+
+.previousRoundIndicator {
+  color: #FF9800;
+  font-weight: 600;
+  font-size: 11px;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  flex: 1;
+}
+
+.keysList {
+  margin-top: 4px;
+  line-height: 1.4;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.keyBadge {
+  display: inline;
+  color: #FF6F00;
+  font-weight: 500;
+}
+
+.dataButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.actionButton:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.highlightSave {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: 2px solid #34d399 !important;
+  animation: saveButtonPulse 2s infinite;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+}
+
+.readyToSave {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 2px 6px;
+  animation: textPulse 2s infinite;
+}
+
+.savePreview {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  margin-top: 4px;
+  width: 100%;
+}
+
+@keyframes saveButtonPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+}
+
+@keyframes textPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.refreshDataBtn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+
+.refreshDataBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+.saveRoundBtn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.saveRoundBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dataManagementSection {
+    padding: 12px;
+  }
+
+  .dataButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dataRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .dataLabel {
+    min-width: auto;
+  }
+
+  .currentRoundIndicator,
+  .previousRoundIndicator {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}

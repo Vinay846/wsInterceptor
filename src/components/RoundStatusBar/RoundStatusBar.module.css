@@ -1,0 +1,184 @@
+.roundStatusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 15px;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.roundInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.keysInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.keysList {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #e8f4fd;
+  font-weight: normal;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.savedInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.savedKeysList {
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: #e8f4fd;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roundIndicator {
+  font-size: 18px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.roundText {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.4;
+}
+
+.roundDataCount {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.roundDataCount.previous {
+  background: rgba(255, 152, 0, 0.3);
+  color: #fff3cd;
+}
+
+.roundDataCount.readyToSave {
+  background: rgba(16, 185, 129, 0.4);
+  color: #dcfce7;
+  border: 2px solid rgba(16, 185, 129, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.savedRoundsInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.savedCount {
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.bridgeActive {
+  background: rgba(16, 185, 129, 0.3) !important;
+  color: #dcfce7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .roundStatusBar {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 15px;
+    text-align: center;
+  }
+
+  .roundInfo {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .savedRoundsInfo {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .roundText {
+    font-size: 13px;
+  }
+
+  .roundDataCount,
+  .savedCount {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .roundIndicator {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .roundInfo {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .roundDataCount {
+    margin: 0;
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "savedData": {
+    "table": {
+      "newTable": "false",
+      "openTime": "",
+      "table": "ne074fgn4bd1150i",
+      "seq": 1,
+      "value": "BCS-A22.2"
+    },
+    "dealer": {
+      "id": "4np88urp9fvfovmr",
+      "table": "ne074fgn4bd1150i",
+      "seq": 2,
+      "value": "Elsa"
+    },
+    "game": {
+      "id": "2054843714",
+      "starttime": "1753736920710",
+      "table": "ne074fgn4bd1150i",
+      "seq": 3,
+      "value": "21:08:40"
+    },
+    "timer": {
+      "id": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "seq": 4,
+      "value": "-4"
+    },
+    "betstats": {
+      "table": "ne074fgn4bd1150i",
+      "seq": 137,
+      "tietotal": "0",
+      "tiepercentage": "0",
+      "tiecount": "0",
+      "totalBetscount": "0",
+      "bankertotal": "0",
+      "bankerpercentage": "0",
+      "bankercount": "0",
+      "playertotal": "0",
+      "playerpercentage": "0",
+      "playercount": "0"
+    },
+    "ShoeSummary": {
+      "tieCounter": "8",
+      "playerPairCounter": "3",
+      "totalGames": "53",
+      "bankerWinCounter": "23",
+      "table": "ne074fgn4bd1150i",
+      "playerWinCounter": "22",
+      "bankerPairCounter": "1",
+      "seq": 134
+    },
+    "statistic": {
+      "table": "ne074fgn4bd1150i",
+      "seq": 132,
+      "value": "{\"bigRoad\":[[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN1\",\"PN1\",\"PN0\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN1\",\"---\",\"---\",\"---\",\"---\"],[\"PP0\",\"PN0\",\"PN0\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN0\",\"---\",\"---\",\"---\",\"---\"],[\"PP0\",\"PN0\",\"PN1\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN0\",\"BN0\",\"BP0\",\"---\",\"---\"],[\"PN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN1\",\"---\",\"---\",\"---\",\"---\"],[\"PB0\",\"PN0\",\"PN0\",\"---\",\"---\",\"---\"],[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN1\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN0\",\"PN0\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN1\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN1\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN0\",\"BN0\",\"---\",\"---\",\"---\"],[\"PN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"---\",\"---\",\"---\",\"---\",\"---\"],[\"PN0\",\"PN0\",\"---\",\"---\",\"---\",\"---\"],[\"BN0\",\"BN0\",\"BN0\",\"BN0\",\"---\",\"---\"],[\"PN0\",\"---\",\"---\",\"---\",\"---\",\"---\"]],\"beadPlate\":[[\"RN9\",\"BN8\",\"GN9\",\"BN8\",\"GN2\",\"BN7\"],[\"RN6\",\"RN7\",\"GN8\",\"BP6\",\"BN8\",\"BN7\"],[\"RN7\",\"RN6\",\"BP6\",\"BN9\",\"BN8\",\"GN4\"],[\"RN9\",\"RN7\",\"RN9\",\"RP5\",\"BN9\",\"RN6\"],[\"RN9\",\"GN9\",\"BB6\",\"BN6\",\"BN8\",\"RN9\"],[\"BN8\",\"GN6\",\"RN5\",\"BN8\",\"BN9\",\"RN9\"],[\"BN7\",\"GN2\",\"RN7\",\"BN9\",\"GN7\",\"RN9\"],[\"RN9\",\"RN4\",\"BN5\",\"RN8\",\"BN7\",\"BN6\"],[\"RN9\",\"RN6\",\"RN7\",\"RN9\",\"BN7\",\"---\"]],\"bigEyeBoy\":[[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"B\",\"B\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"R\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"]],\"smallRoad\":[[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"R\",\"R\",\"R\",\"R\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"R\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"R\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"R\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"B\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"]],\"cockroachPig\":[[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"B\",\"B\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"R\",\"-\",\"-\",\"-\"],[\"B\",\"B\",\"-\",\"-\",\"-\",\"-\"],[\"R\",\"R\",\"-\",\"-\",\"-\",\"-\"],[\"B\",\"-\",\"-\",\"-\",\"-\",\"-\"]],\"playerEnhancement\":{\"bigRoad\":{\"x\":23,\"y\":1,\"value\":\"PN0\"},\"bigEyeBoy\":{\"x\":27,\"y\":0,\"value\":\"R\"},\"smallRoad\":{\"x\":21,\"y\":0,\"value\":\"R\"},\"cockroachRoad\":{\"x\":24,\"y\":1,\"value\":\"B\"},\"beadPlate\":{\"x\":8,\"y\":5,\"value\":\"BN0\"}},\"bankerEnhancement\":{\"bigRoad\":{\"x\":24,\"y\":0,\"value\":\"BN0\"},\"bigEyeBoy\":{\"x\":26,\"y\":1,\"value\":\"B\"},\"smallRoad\":{\"x\":20,\"y\":1,\"value\":\"B\"},\"cockroachRoad\":{\"x\":25,\"y\":0,\"value\":\"R\"},\"beadPlate\":{\"x\":8,\"y\":5,\"value\":\"RN0\"}},\"bankerWinCounter\":23,\"playerWinCounter\":22,\"tieCounter\":8,\"bankerPairCounter\":1,\"playerPairCounter\":3,\"table\":\"ne074fgn4bd1150i\"}"
+    },
+    "goodroad": {
+      "oneTwoBankerDepth": "0",
+      "psc": "0",
+      "switchPlayerDepth": "0",
+      "playerPingPongDepth": "0",
+      "groupId": "null",
+      "playerStreak": "false",
+      "oneTwoPlayerDepth": "0",
+      "switchBankerDepth": "0",
+      "switchPlayer": "false",
+      "swp": "0",
+      "bankerSandwich": "false",
+      "sourcetableId": "ne074fgn4bd1150i",
+      "playerStreakDepth": "0",
+      "oneTwoPlayer": "false",
+      "otb": "0",
+      "separatedBankerDepth": "0",
+      "table": "ne074fgn4bd1150i",
+      "ppb": "0",
+      "separatedPlayerDepth": "0",
+      "spb": "0",
+      "snb": "0",
+      "separatedPlayer": "false",
+      "playerSandwich": "false",
+      "otp": "0",
+      "oneTwoBanker": "false",
+      "bankerPingPong": "false",
+      "bankerStreak": "false",
+      "bankerStreakDepth": "0",
+      "ppp": "0",
+      "spp": "0",
+      "bsc": "0",
+      "playerSandwichDepth": "0",
+      "snp": "0",
+      "playerPingPong": "false",
+      "switchBanker": "false",
+      "separatedBanker": "false",
+      "bankerSandwichDepth": "0",
+      "bankerPingPongDepth": "0",
+      "swb": "0",
+      "seq": 135,
+      "grTableCount": "0",
+      "pstc": "3",
+      "bstc": "4"
+    },
+    "subscribe": {
+      "channel": "table-ne074fgn4bd1150i",
+      "table": "ne074fgn4bd1150i",
+      "status": "success",
+      "seq": 11
+    },
+    "betsclosingsoon": {
+      "game": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "seq": 81
+    },
+    "betsclosed": {
+      "game": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "seq": 99
+    },
+    "startDealing": {
+      "game": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "seq": 104
+    },
+    "cardinc": {
+      "game": "2054843714",
+      "cardType": "extra",
+      "place": "banker",
+      "table": "ne074fgn4bd1150i",
+      "seq": 76,
+      "value": "0"
+    },
+    "card": {
+      "sc": "QD1",
+      "game": "2054843714",
+      "cardCount": "4",
+      "place": "banker",
+      "table": "ne074fgn4bd1150i",
+      "seq": 91,
+      "value": "23"
+    },
+    "gameresult": {
+      "pp": "0.0",
+      "bb": "0.0",
+      "gameType": "baccarat6",
+      "perfectPair": "false",
+      "banker_pair": "false",
+      "code": "0",
+      "bighand": "true",
+      "bg": "1.54",
+      "player_pair": "false",
+      "bp": "0.0",
+      "result": "player",
+      "score": "7",
+      "bnc": "0.0",
+      "sm": "0.0",
+      "id": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "eitherPair": "false",
+      "gameId": "2054843714",
+      "b": "0.0",
+      "s6": "0.0",
+      "natural": "false",
+      "playerBonus": "false",
+      "pnc": "2.0",
+      "ep": "0.0",
+      "bankerBonus": "false",
+      "prp": "0.0",
+      "p": "2.0",
+      "pb": "0.0",
+      "t": "0.0",
+      "super6": "false",
+      "time": "21:08:40",
+      "smallhand": "false",
+      "seq": 131,
+      "value": "player"
+    },
+    "statisticLA": {
+      "table": "ne074fgn4bd1150i",
+      "seq": 133,
+      "value": "{\"br\":{\"x\":23,\"y\":0,\"value\":\"PN0\"},\"bp\":{\"x\":8,\"y\":4,\"value\":\"BN7\"},\"beb\":{\"x\":26,\"y\":0,\"value\":\"B\"},\"sr\":{\"x\":20,\"y\":0,\"value\":\"B\"},\"cp\":{\"x\":24,\"y\":0,\"value\":\"B\"},\"pE\":{\"br\":{\"x\":23,\"y\":1,\"value\":\"PN0\"},\"beb\":{\"x\":27,\"y\":0,\"value\":\"R\"},\"sr\":{\"x\":21,\"y\":0,\"value\":\"R\"},\"cr\":{\"x\":24,\"y\":1,\"value\":\"B\"},\"bp\":{\"x\":8,\"y\":5,\"value\":\"BN0\"}},\"bE\":{\"br\":{\"x\":24,\"y\":0,\"value\":\"BN0\"},\"beb\":{\"x\":26,\"y\":1,\"value\":\"B\"},\"sr\":{\"x\":20,\"y\":1,\"value\":\"B\"},\"cr\":{\"x\":25,\"y\":0,\"value\":\"R\"},\"bp\":{\"x\":8,\"y\":5,\"value\":\"RN0\"}},\"bwc\":23,\"pwc\":22,\"tc\":8,\"bpc\":1,\"ppc\":3,\"table\":\"ne074fgn4bd1150i\"}"
+    },
+    "winners": {
+      "gId": "2054843714",
+      "totalEur": "92.29",
+      "winnersCount": "19",
+      "table": "ne074fgn4bd1150i",
+      "seq": 138,
+      "winner": [
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Vhokz",
+          "userId": "ppc1735156667051",
+          "win": "60.32"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "epatoel",
+          "userId": "ppc1735180967040",
+          "win": "7.71"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "MkwHehehe",
+          "userId": "ppc1735100059952",
+          "win": "6.16"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Zaifer",
+          "userId": "ppc1735171527179",
+          "win": "6.16"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Macocodogelo",
+          "userId": "ppc1735155910089",
+          "win": "4.62"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "player1735163696969",
+          "userId": "ppc1735163696969",
+          "win": "2.47"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Nmaneie",
+          "userId": "ppc1735022583095",
+          "win": "2.14"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Teh",
+          "userId": "ppc1735039105301",
+          "win": "2.03"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Mj13",
+          "userId": "ppc1735148810694",
+          "win": "0.68"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "KingsSpades",
+          "userId": "ppc1653154789962",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Naze",
+          "userId": "ppc1735129039593",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Fj61",
+          "userId": "ppc1735173064471",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Huug",
+          "userId": "ppc1735155839068",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "hjgigi",
+          "userId": "ppc1735180971190",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "kevin",
+          "userId": "ppc1735170495183",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Jdhdhwyq",
+          "userId": "ppc1735159084505",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "INDIO69",
+          "userId": "ppc1735064224422",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "player1735170126906",
+          "userId": "ppc1735170126906",
+          "win": "0"
+        },
+        {
+          "megawin": "false",
+          "currency": "EUR",
+          "screenName": "Kkkkkkkkk577",
+          "userId": "ppc1735035284776",
+          "win": "0"
+        }
+      ]
+    },
+    "savedAt": "2025-07-28T21:09:50.932Z",
+    "messageCount": 28,
+    "disablesidebets": {
+      "tableId": "ne074fgn4bd1150i",
+      "seq": 136,
+      "value": "5,12,13"
+    },
+    "betsopen": {
+      "game": "2054843714",
+      "table": "ne074fgn4bd1150i",
+      "seq": 59
+    },
+    "startshuffling": {
+      "game": "",
+      "table": "ne074fgn4bd1150i",
+      "seq": 7
+    },
+    "currentShoe": {
+      "cc": "0",
+      "code": "blue",
+      "changeShoe": "true",
+      "seq": 92
+    },
+    "endshuffling": {
+      "game": "",
+      "table": "ne074fgn4bd1150i",
+      "seq": 153
+    },
+    "win": {
+      "gameId": "2054843714",
+      "megawin": "false",
+      "mCap": "false",
+      "nwb": "-200.0",
+      "win": "100.0",
+      "table": "ne074fgn4bd1150i",
+      "seq": 121
+    },
+    "peelTimer": {
+      "gameId": "2054843714",
+      "tableId": "ne074fgn4bd1150i",
+      "type": "bankerThirdCard",
+      "seq": 92,
+      "value": "10"
+    },
+    "peelTimeOpen": {
+      "game": "2054843714",
+      "type": "bankerThirdCard",
+      "table": "ne074fgn4bd1150i",
+      "seq": 93
+    },
+    "peelTimeClosed": {
+      "game": "2054843714",
+      "type": "bankerThirdCard",
+      "table": "ne074fgn4bd1150i",
+      "seq": 117
+    },
+    "cardRevealed": {
+      "gameId": "2054843714",
+      "cardType": "extra",
+      "tableId": "ne074fgn4bd1150i",
+      "hand": "banker",
+      "seq": 130
+    },
+    "pong": {
+      "channel": "table-ne074fgn4bd1150i",
+      "time": "1753731144875",
+      "seq": 438
+    },
+    "remove_card": {
+      "game": "2054843714",
+      "table": "seotdabaccarat01",
+      "card": "player",
+      "barCode": "012",
+      "seq": 51
+    }
+  },
+  "lastUpdated": "2025-12-30T20:58:20.284Z"
+}
