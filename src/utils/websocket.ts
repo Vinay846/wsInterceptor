@@ -50,6 +50,26 @@ export async function extractParamsFromUrl(fullUrl: string): Promise<string> {
   });
 }
 
+/**
+ * Resolve the Env WebSocket URL to connect to.
+ * - If an override URL is provided and is already a ws(s):// address, use it directly.
+ * - If it contains JSESSIONID & tableId params (or is a page URL), derive via table config.
+ * - Otherwise fall back to the current page URL params (original behavior).
+ */
+export async function resolveEnvWebSocketUrl(overrideUrl: string, fallbackHref: string): Promise<string> {
+  const trimmed = (overrideUrl || '').trim();
+
+  if (trimmed) {
+    if (/^wss?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    // Treat as a URL containing connection params (JSESSIONID, tableId, env)
+    return extractParamsFromUrl(trimmed);
+  }
+
+  return extractParamsFromUrl(fallbackHref);
+}
+
 export function generateRandomGameId(): string {
   return Math.floor(Math.random() * 9000000000) + 1000000000 + '';
 }

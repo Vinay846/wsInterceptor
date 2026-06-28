@@ -82,6 +82,103 @@ if (process.pkg && !fs.existsSync(DATA_FILE)) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
 }
 
+// ---------------------------------------------------------------------------
+// Configuration management (data file registry, active file, initial keys)
+// ---------------------------------------------------------------------------
+const CONFIG_FILE = path.join(dataDir, 'config.json');
+const DEFAULT_DATA_FILE = 'data.json';
+// Keys that are auto-sent to every newly connected client (configurable from UI)
+const DEFAULT_INITIAL_KEYS = ['table', 'dealer', 'game', 'disablesidebets', 'ShoeSummary', 'statistic', 'subscribe'];
+
+function getDefaultDataStructure() {
+  return {
+    savedData: {
+      savedAt: new Date().toISOString(),
+      messageCount: 0
+    },
+    lastUpdated: new Date().toISOString()
+  };
+}
+
+// Validate and normalize a user supplied data file name (prevents path traversal)
+function sanitizeFileName(name) {
+  if (!name || typeof name !== 'string') return null;
+  let safe = name.trim();
+  if (!safe) return null;
+  if (!safe.toLowerCase().endsWith('.json')) safe += '.json';
+  // Disallow path separators and any unexpected characters
+  if (!/^[\w\-. ]+\.json$/i.test(safe)) return null;
+  if (safe.toLowerCase() === 'config.json') return null; // reserved
+  return safe;
+}
+
+function loadConfig() {
+  const config = {
+    activeFile: DEFAULT_DATA_FILE,
+    initialKeys: [...DEFAULT_INITIAL_KEYS],
+    files: [DEFAULT_DATA_FILE]
+  };
+
+  try {
+    if (fs.existsSync(CONFIG_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        if (Array.isArray(parsed.files)) {
+          config.files = parsed.files.map(sanitizeFileName).filter(Boolean);
+        }
+        if (typeof parsed.activeFile === 'string') {
+          config.activeFile = sanitizeFileName(parsed.activeFile) || DEFAULT_DATA_FILE;
+        }
+        if (Array.isArray(parsed.initialKeys)) {
+          config.initialKeys = parsed.initialKeys.filter((k) => typeof k === 'string');
+        }
+      }
+    }
+  } catch (err) {
+    console.error('❌ Error loading config, using defaults:', err);
+  }
+
+  // The base data file must always be available
+  if (!config.files.includes(DEFAULT_DATA_FILE)) {
+    config.files.unshift(DEFAULT_DATA_FILE);
+  }
+  // Active file must be part of the registry
+  if (!config.files.includes(config.activeFile)) {
+    config.activeFile = config.files[0] || DEFAULT_DATA_FILE;
+  }
+
+  return config;
+}
+
+function saveConfig(config) {
+  try {
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    return true;
+  } catch (err) {
+    console.error('❌ Error saving config:', err);
+    return false;
+  }
+}
+
+// Ensure a data file physically exists, creating an empty structure if needed
+function ensureDataFile(fileName) {
+  const filePath = path.join(dataDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(getDefaultDataStructure(), null, 2));
+    } catch (err) {
+      console.error(`❌ Error creating data file ${fileName}:`, err);
+    }
+  }
+  return filePath;
+}
+
+// Resolve the full path of the currently active data file (used by all data ops)
+function getActiveDataFilePath() {
+  const config = loadConfig();
+  return ensureDataFile(config.activeFile);
+}
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -135,18 +232,19 @@ wss.on('connection', function connection(ws) {
   setTimeout(() => {
     const clientInfo = clients.get(ws);
     if (clientInfo && clientInfo.type !== 'interceptor') {
-      
-      fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+
+      const activeDataFile = getActiveDataFilePath();
+      const initialKeys = loadConfig().initialKeys;
+
+      fs.readFile(activeDataFile, 'utf8', (err, data) => {
         if (!err && data) {
           try {
             const jsonData = JSON.parse(data);
             
             if (jsonData.savedData) {
               const { savedAt, messageCount, ...gameData } = jsonData.savedData;
-              
-              // Send ONLY these specific initial keys (not all data)
-              const initialKeys = ['table', 'dealer', 'game', 'disablesidebets', 'ShoeSummary', 'statistic', 'subscribe'];
-              
+
+              // Send ONLY the configured initial keys (not all data)
               initialKeys.forEach((key, index) => {
                 setTimeout(() => {
                   if (gameData[key] && ws.readyState === WebSocket.OPEN) {
@@ -400,7 +498,7 @@ wss.on('connection', function connection(ws) {
 
 // REST API endpoints
 app.get('/data', (req, res) => {
-  fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+  fs.readFile(getActiveDataFilePath(), 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading data file:', err);
       return res.status(500).json({ error: 'Error reading data file' });
@@ -423,7 +521,8 @@ app.post('/update-game-ids', (req, res) => {
     return res.status(400).json({ error: 'newGameId is required' });
   }
 
-  fs.readFile(DATA_FILE, 'utf8', (err, existingData) => {
+  const activeDataFile = getActiveDataFilePath();
+  fs.readFile(activeDataFile, 'utf8', (err, existingData) => {
     if (err) {
       console.error('Error reading data file:', err);
       return res.status(500).json({ error: 'Error reading data file' });
@@ -448,7 +547,7 @@ app.post('/update-game-ids', (req, res) => {
 
       dataToUpdate.lastUpdated = new Date().toISOString();
       
-      fs.writeFile(DATA_FILE, JSON.stringify(dataToUpdate, null, 2), (writeErr) => {
+      fs.writeFile(activeDataFile, JSON.stringify(dataToUpdate, null, 2), (writeErr) => {
         if (writeErr) {
           console.error('Error updating game IDs:', writeErr);
           return res.status(500).json({ error: 'Error updating game IDs' });
@@ -473,7 +572,8 @@ app.post('/update-game-ids', (req, res) => {
 app.post('/save-collected-data', (req, res) => {
   const collectedData = req.body;
 
-  fs.readFile(DATA_FILE, 'utf8', (err, existingData) => {
+  const activeDataFile = getActiveDataFilePath();
+  fs.readFile(activeDataFile, 'utf8', (err, existingData) => {
     let dataToSave = {
       savedData: {
         savedAt: new Date().toISOString(),
@@ -527,7 +627,7 @@ app.post('/save-collected-data', (req, res) => {
     dataToSave.savedData.messageCount = Object.keys(collectedData).length;
     dataToSave.lastUpdated = new Date().toISOString();
 
-    fs.writeFile(DATA_FILE, JSON.stringify(dataToSave, null, 2), (writeErr) => {
+    fs.writeFile(activeDataFile, JSON.stringify(dataToSave, null, 2), (writeErr) => {
       if (writeErr) {
         console.error('Error saving collected data:', writeErr);
         return res.status(500).json({ error: 'Error saving collected data' });
@@ -541,6 +641,195 @@ app.post('/save-collected-data', (req, res) => {
         totalKeys: Object.keys(dataToSave.savedData).length - 2, // Subtract metadata keys
         data: dataToSave
       });
+    });
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+// Configuration & data-file management endpoints
+// ---------------------------------------------------------------------------
+
+// List all registered data files plus the active file and initial-keys config
+app.get('/files', (req, res) => {
+  const config = loadConfig();
+  res.json({
+    files: config.files,
+    activeFile: config.activeFile,
+    initialKeys: config.initialKeys
+  });
+});
+
+// Create a new (empty) data file
+app.post('/files', (req, res) => {
+  const fileName = sanitizeFileName(req.body && req.body.fileName);
+  if (!fileName) {
+    return res.status(400).json({ error: 'Invalid file name. Use letters, numbers, spaces, - . _ only.' });
+  }
+
+  const config = loadConfig();
+  if (config.files.includes(fileName)) {
+    return res.status(409).json({ error: 'A file with this name already exists' });
+  }
+
+  ensureDataFile(fileName);
+  config.files.push(fileName);
+  if (!saveConfig(config)) {
+    return res.status(500).json({ error: 'Failed to persist configuration' });
+  }
+
+  res.json({ message: 'File created', files: config.files, activeFile: config.activeFile });
+});
+
+// Delete a data file
+app.delete('/files/:fileName', (req, res) => {
+  const fileName = sanitizeFileName(req.params.fileName);
+  if (!fileName) {
+    return res.status(400).json({ error: 'Invalid file name' });
+  }
+
+  const config = loadConfig();
+  if (!config.files.includes(fileName)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  if (config.files.length <= 1) {
+    return res.status(400).json({ error: 'Cannot delete the only remaining data file' });
+  }
+
+  config.files = config.files.filter((f) => f !== fileName);
+  // If the deleted file was active, fall back to the first remaining file
+  if (config.activeFile === fileName) {
+    config.activeFile = config.files[0];
+  }
+
+  try {
+    const filePath = path.join(dataDir, fileName);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  } catch (err) {
+    console.error('Error deleting data file:', err);
+    return res.status(500).json({ error: 'Failed to delete file' });
+  }
+
+  if (!saveConfig(config)) {
+    return res.status(500).json({ error: 'Failed to persist configuration' });
+  }
+
+  res.json({ message: 'File deleted', files: config.files, activeFile: config.activeFile });
+});
+
+// Set the active data file
+app.post('/active-file', (req, res) => {
+  const fileName = sanitizeFileName(req.body && req.body.fileName);
+  if (!fileName) {
+    return res.status(400).json({ error: 'Invalid file name' });
+  }
+
+  const config = loadConfig();
+  if (!config.files.includes(fileName)) {
+    return res.status(404).json({ error: 'File not found in registry' });
+  }
+
+  config.activeFile = fileName;
+  ensureDataFile(fileName);
+  if (!saveConfig(config)) {
+    return res.status(500).json({ error: 'Failed to persist configuration' });
+  }
+
+  res.json({ message: 'Active file updated', activeFile: config.activeFile, files: config.files });
+});
+
+// Update the list of keys auto-sent to newly connected clients
+app.post('/config/initial-keys', (req, res) => {
+  const keys = req.body && req.body.keys;
+  if (!Array.isArray(keys) || keys.some((k) => typeof k !== 'string')) {
+    return res.status(400).json({ error: 'keys must be an array of strings' });
+  }
+
+  const config = loadConfig();
+  config.initialKeys = keys;
+  if (!saveConfig(config)) {
+    return res.status(500).json({ error: 'Failed to persist configuration' });
+  }
+
+  res.json({ message: 'Initial keys updated', initialKeys: config.initialKeys });
+});
+
+// Add or update a single message key in the active data file
+app.post('/update-message', (req, res) => {
+  const { key, data } = req.body || {};
+
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'key is required' });
+  }
+  if (data === undefined || data === null || typeof data !== 'object') {
+    return res.status(400).json({ error: 'data must be an object' });
+  }
+
+  const activeDataFile = getActiveDataFilePath();
+  fs.readFile(activeDataFile, 'utf8', (err, existingData) => {
+    let dataToSave = getDefaultDataStructure();
+    if (!err && existingData) {
+      try {
+        dataToSave = JSON.parse(existingData);
+      } catch (parseErr) {
+        // Fall back to a fresh structure if the file is corrupted
+      }
+    }
+
+    if (!dataToSave.savedData) {
+      dataToSave.savedData = { savedAt: new Date().toISOString(), messageCount: 0 };
+    }
+
+    dataToSave.savedData[key] = data;
+    dataToSave.lastUpdated = new Date().toISOString();
+
+    fs.writeFile(activeDataFile, JSON.stringify(dataToSave, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error('Error updating message:', writeErr);
+        return res.status(500).json({ error: 'Error updating message' });
+      }
+
+      res.json({ message: 'Message saved', key, data: dataToSave });
+    });
+  });
+});
+
+// Delete a single message key from the active data file
+app.delete('/message/:key', (req, res) => {
+  const key = req.params.key;
+
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'key is required' });
+  }
+
+  const activeDataFile = getActiveDataFilePath();
+  fs.readFile(activeDataFile, 'utf8', (err, existingData) => {
+    if (err) {
+      console.error('Error reading data file:', err);
+      return res.status(500).json({ error: 'Error reading data file' });
+    }
+
+    let dataToSave;
+    try {
+      dataToSave = JSON.parse(existingData);
+    } catch (parseErr) {
+      return res.status(500).json({ error: 'Corrupted JSON file' });
+    }
+
+    if (!dataToSave.savedData || dataToSave.savedData[key] === undefined) {
+      return res.status(404).json({ error: `Message "${key}" not found` });
+    }
+
+    delete dataToSave.savedData[key];
+    dataToSave.lastUpdated = new Date().toISOString();
+
+    fs.writeFile(activeDataFile, JSON.stringify(dataToSave, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error('Error deleting message:', writeErr);
+        return res.status(500).json({ error: 'Error deleting message' });
+      }
+
+      res.json({ message: 'Message deleted', key, data: dataToSave });
     });
   });
 });

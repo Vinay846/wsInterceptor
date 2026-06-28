@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface MessageData {
   [key: string]: any;
 }
@@ -37,12 +39,16 @@ export interface MessageShortcut {
   messages: ShortcutMessage[];
   createdAt: string;
   lastUsed?: string;
+  /** When true, messages are sent one-by-one using each message's `delayMs`. */
+  sequentialSend?: boolean;
 }
 
 export interface ShortcutMessage {
   id: string;
   messageKey: string;
   content: string;
+  /** Gap (in ms) that elapses after this message before the next one is sent. */
+  delayMs?: number;
 }
 
 export interface CardSuit {
@@ -128,9 +134,12 @@ export interface MessageControlProps {
   bridgeMode: boolean;
   onKeyChange: (key: string) => void;
   onContentChange: (content: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (raw?: boolean) => void;
   onOpenCardPopup: () => void;
   onOpenJSONViewer: () => void;
+  onAddMessage: (name: string, content: string) => void;
+  onUpdateMessage: (key: string, content: string) => void;
+  onDeleteMessage: (key: string) => void;
 }
 
 export interface ShortcutSectionProps {
@@ -152,13 +161,35 @@ export interface MessageColumnProps {
   onClear: () => void;
   onReconnect?: () => void;
   onDisconnect?: () => void;
+  onEditUrl?: () => void;
+  isRecording?: boolean;
+  onToggleRecording?: () => void;
   showControls?: boolean;
+  footer?: ReactNode;
 }
 
-export interface RoundStatusBarProps {
-  roundStatus: RoundStatus;
-  collectedRoundData: ResponsesData;
-  previousRoundData: ResponsesData;
-  savedRoundsData: ResponsesData;
-  bridgeMode: boolean;
+export interface EnvConfigPanelProps {
+  // Feature 1: Env URL editing
+  showUrlEditor: boolean;
+  envUrl: string;
+  isConnecting: boolean;
+  onEnvUrlChange: (url: string) => void;
+  onSaveAndConnect: () => void;
+
+  // Feature 2: Initial messages sent to clients on connect
+  availableKeys: string[];
+  initialKeys: string[];
+  onSaveInitialKeys: (keys: string[]) => void;
+
+  // Feature 3: Data file management
+  files: string[];
+  activeFile: string;
+  onSelectFile: (fileName: string) => void;
+  onCreateFile: (fileName: string) => void;
+  onDeleteFile: (fileName: string) => void;
+
+  // Recording triggers (start/stop message keys)
+  recordStartKey: string;
+  recordStopKey: string;
+  onSaveRecordingConfig: (startKey: string, stopKey: string) => void;
 }

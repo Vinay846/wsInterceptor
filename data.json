@@ -14,17 +14,17 @@
       "value": "Elsa"
     },
     "game": {
-      "id": "2054843714",
+      "id": "5130266314",
       "starttime": "1753736920710",
       "table": "ne074fgn4bd1150i",
       "seq": 3,
       "value": "21:08:40"
     },
     "timer": {
-      "id": "2054843714",
+      "id": "5130266314",
       "table": "ne074fgn4bd1150i",
-      "seq": 4,
-      "value": "-4"
+      "seq": 1001,
+      "value": "12"
     },
     "betstats": {
       "table": "ne074fgn4bd1150i",
@@ -107,22 +107,22 @@
       "seq": 11
     },
     "betsclosingsoon": {
-      "game": "2054843714",
+      "game": "5130266314",
       "table": "ne074fgn4bd1150i",
       "seq": 81
     },
     "betsclosed": {
-      "game": "2054843714",
+      "game": "5130266314",
       "table": "ne074fgn4bd1150i",
       "seq": 99
     },
     "startDealing": {
-      "game": "2054843714",
+      "game": "5130266314",
       "table": "ne074fgn4bd1150i",
       "seq": 104
     },
     "cardinc": {
-      "game": "2054843714",
+      "game": "5130266314",
       "cardType": "extra",
       "place": "banker",
       "table": "ne074fgn4bd1150i",
@@ -131,7 +131,7 @@
     },
     "card": {
       "sc": "QD1",
-      "game": "2054843714",
+      "game": "5130266314",
       "cardCount": "4",
       "place": "banker",
       "table": "ne074fgn4bd1150i",
@@ -153,10 +153,10 @@
       "score": "7",
       "bnc": "0.0",
       "sm": "0.0",
-      "id": "2054843714",
+      "id": "5130266314",
       "table": "ne074fgn4bd1150i",
       "eitherPair": "false",
-      "gameId": "2054843714",
+      "gameId": "5130266314",
       "b": "0.0",
       "s6": "0.0",
       "natural": "false",
@@ -180,7 +180,7 @@
       "value": "{\"br\":{\"x\":23,\"y\":0,\"value\":\"PN0\"},\"bp\":{\"x\":8,\"y\":4,\"value\":\"BN7\"},\"beb\":{\"x\":26,\"y\":0,\"value\":\"B\"},\"sr\":{\"x\":20,\"y\":0,\"value\":\"B\"},\"cp\":{\"x\":24,\"y\":0,\"value\":\"B\"},\"pE\":{\"br\":{\"x\":23,\"y\":1,\"value\":\"PN0\"},\"beb\":{\"x\":27,\"y\":0,\"value\":\"R\"},\"sr\":{\"x\":21,\"y\":0,\"value\":\"R\"},\"cr\":{\"x\":24,\"y\":1,\"value\":\"B\"},\"bp\":{\"x\":8,\"y\":5,\"value\":\"BN0\"}},\"bE\":{\"br\":{\"x\":24,\"y\":0,\"value\":\"BN0\"},\"beb\":{\"x\":26,\"y\":1,\"value\":\"B\"},\"sr\":{\"x\":20,\"y\":1,\"value\":\"B\"},\"cr\":{\"x\":25,\"y\":0,\"value\":\"R\"},\"bp\":{\"x\":8,\"y\":5,\"value\":\"RN0\"}},\"bwc\":23,\"pwc\":22,\"tc\":8,\"bpc\":1,\"ppc\":3,\"table\":\"ne074fgn4bd1150i\"}"
     },
     "winners": {
-      "gId": "2054843714",
+      "gId": "5130266314",
       "totalEur": "92.29",
       "winnersCount": "19",
       "table": "ne074fgn4bd1150i",
@@ -329,7 +329,7 @@
       "value": "5,12,13"
     },
     "betsopen": {
-      "game": "2054843714",
+      "game": "5130266314",
       "table": "ne074fgn4bd1150i",
       "seq": 59
     },
@@ -350,7 +350,7 @@
       "seq": 153
     },
     "win": {
-      "gameId": "2054843714",
+      "gameId": "5130266314",
       "megawin": "false",
       "mCap": "false",
       "nwb": "-200.0",
@@ -359,26 +359,26 @@
       "seq": 121
     },
     "peelTimer": {
-      "gameId": "2054843714",
+      "gameId": "5130266314",
       "tableId": "ne074fgn4bd1150i",
       "type": "bankerThirdCard",
       "seq": 92,
       "value": "10"
     },
     "peelTimeOpen": {
-      "game": "2054843714",
+      "game": "5130266314",
       "type": "bankerThirdCard",
       "table": "ne074fgn4bd1150i",
       "seq": 93
     },
     "peelTimeClosed": {
-      "game": "2054843714",
+      "game": "5130266314",
       "type": "bankerThirdCard",
       "table": "ne074fgn4bd1150i",
       "seq": 117
     },
     "cardRevealed": {
-      "gameId": "2054843714",
+      "gameId": "5130266314",
       "cardType": "extra",
       "tableId": "ne074fgn4bd1150i",
       "hand": "banker",
@@ -390,12 +390,12 @@
       "seq": 438
     },
     "remove_card": {
-      "game": "2054843714",
+      "game": "5130266314",
       "table": "seotdabaccarat01",
       "card": "player",
       "barCode": "012",
       "seq": 51
     }
   },
-  "lastUpdated": "2025-12-30T20:58:20.284Z"
+  "lastUpdated": "2026-06-28T19:17:42.135Z"
 }

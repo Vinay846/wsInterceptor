@@ -35,3 +35,6 @@ Thumbs.db
 # Data (if you want to keep data.json in version control, remove this line)
 # data.json
 
+# Server-generated runtime config (active file, initial keys, file registry)
+config.json
+

@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import configSlice from './slices/configSlice';
 import connectionSlice from './slices/connectionSlice';
 import messageSlice from './slices/messageSlice';
 import shortcutSlice from './slices/shortcutSlice';
@@ -12,6 +13,7 @@ const rootReducer = {
   shortcuts: shortcutSlice,
   connections: connectionSlice,
   ui: uiSlice,
+  config: configSlice,
 };
 
 export const store = configureStore({

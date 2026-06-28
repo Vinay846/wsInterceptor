@@ -1,3 +1,4 @@
+import { CircleDot, Pencil, Square } from 'lucide-react';
 import React from 'react';
 
 import { MessageColumnProps } from '../../types';
@@ -12,7 +13,11 @@ const MessageColumn: React.FC<MessageColumnProps> = ({
   onClear,
   onReconnect,
   onDisconnect,
+  onEditUrl,
+  isRecording,
+  onToggleRecording,
   showControls = true,
+  footer,
 }) => {
   return (
     <div className={styles.messageColumn}>
@@ -20,9 +25,29 @@ const MessageColumn: React.FC<MessageColumnProps> = ({
         <span className={styles.columnTitle}>
           <div className={`${styles.connectionIndicator} ${styles[connectionStatus]}`} />
           {title} {bridgeMode && '🌉'}
+          {onEditUrl && (
+            <button
+              className={styles.editUrlBtn}
+              onClick={onEditUrl}
+              title="Edit Env WebSocket URL"
+              aria-label="Edit Env WebSocket URL"
+            >
+              <Pencil size={14} />
+            </button>
+          )}
         </span>
         {showControls && (
           <div className={styles.columnControls}>
+            {onToggleRecording && (
+              <button
+                className={`${styles.controlBtn} ${isRecording ? styles.recordingBtn : styles.recordBtn}`}
+                onClick={onToggleRecording}
+                title={isRecording ? 'Stop recording' : 'Start recording'}
+              >
+                {isRecording ? <Square size={11} /> : <CircleDot size={11} />}
+                {isRecording ? 'Stop' : 'Record'}
+              </button>
+            )}
             <button className={styles.controlBtn} onClick={onClear}>
               Clear
             </button>
@@ -53,6 +78,8 @@ const MessageColumn: React.FC<MessageColumnProps> = ({
           <div className={styles.bridgeInfo}>🌉 Bridge Mode: Direct message passthrough active</div>
         )}
       </div>
+
+      {footer && <div className={styles.columnFooter}>{footer}</div>}
     </div>
   );
 };

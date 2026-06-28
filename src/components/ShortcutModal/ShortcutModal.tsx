@@ -1,4 +1,4 @@
-import { Plus, Trash2, Eye, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2, Eye, ArrowUp, ArrowDown, Clock } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { ShortcutModalProps, ShortcutMessage } from '../../types';
@@ -22,16 +22,21 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [messages, setMessages] = useState<ShortcutMessage[]>([]);
+  const [sequentialSend, setSequentialSend] = useState(false);
   const [showJSONViewer, setShowJSONViewer] = useState(false);
   const [currentViewingMessageId, setCurrentViewingMessageId] = useState<string | null>(null);
+
+  const DEFAULT_DELAY_MS = 200;
 
   useEffect(() => {
     if (editingShortcut) {
       setName(editingShortcut.name);
       setMessages(editingShortcut.messages);
+      setSequentialSend(!!editingShortcut.sequentialSend);
     } else {
       setName('');
       setMessages([]);
+      setSequentialSend(false);
     }
   }, [editingShortcut, isOpen]);
 
@@ -40,8 +45,13 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
       id: Date.now().toString() + Math.random(),
       messageKey: '',
       content: '',
+      delayMs: DEFAULT_DELAY_MS,
     };
     setMessages((prev) => [...prev, newMessage]);
+  };
+
+  const updateMessageDelay = (messageId: string, delayMs: number) => {
+    setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, delayMs } : m)));
   };
 
   const removeMessage = (messageId: string) => {
@@ -148,7 +158,12 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
     ) {
       onSave({
         name: name.trim(),
-        messages: messages.map((m) => ({ ...m, content: m.content.trim() })),
+        messages: messages.map((m) => ({
+          ...m,
+          content: m.content.trim(),
+          delayMs: typeof m.delayMs === 'number' ? m.delayMs : DEFAULT_DELAY_MS,
+        })),
+        sequentialSend,
         lastUsed: editingShortcut?.lastUsed,
       });
       onClose();
@@ -158,6 +173,7 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
   const handleReset = (): void => {
     setName('');
     setMessages([]);
+    setSequentialSend(false);
   };
 
   const canSave =
@@ -194,11 +210,34 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
           <div className={styles.messageListSection}>
             <div className={styles.messageListHeader}>
               <h3 className={styles.messageListTitle}>Messages ({messages.length})</h3>
-              <button className={styles.addMessageBtn} onClick={addMessage}>
-                <Plus size={14} />
-                Add Message
-              </button>
+              <div className={styles.messageListHeaderActions}>
+                <button
+                  type="button"
+                  className={`${styles.sequenceToggleBtn} ${sequentialSend ? styles.sequenceToggleActive : ''}`}
+                  onClick={() => setSequentialSend((prev) => !prev)}
+                  aria-pressed={sequentialSend}
+                  title={
+                    sequentialSend
+                      ? 'Sequential send is ON - each message waits for its delay before the next is sent. Click to disable.'
+                      : 'Send messages in sequence with a per-message delay'
+                  }
+                >
+                  <Clock size={14} />
+                  {sequentialSend ? 'Sequence: ON' : 'Sequence: OFF'}
+                </button>
+                <button className={styles.addMessageBtn} onClick={addMessage}>
+                  <Plus size={14} />
+                  Add Message
+                </button>
+              </div>
             </div>
+
+            {sequentialSend && messages.length > 0 && (
+              <div className={styles.sequenceHint}>
+                The first message is sent instantly; each following message waits for the sum of the previous
+                messages&apos; delays (e.g. 200ms then 200ms → sent at 0ms, 200ms, 400ms).
+              </div>
+            )}
 
             {messages.length === 0 ? (
               <div className={styles.emptyMessageList}>
@@ -217,6 +256,25 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
                           {message.messageKey && <span className={styles.messageKeyBadge}>{message.messageKey}</span>}
                         </span>
                         <div className={styles.messageHeaderButtons}>
+                          {sequentialSend && (
+                            <div
+                              className={styles.delayInputWrap}
+                              title="Delay (ms) that elapses after this message before the next one is sent"
+                            >
+                              <Clock size={11} />
+                              <input
+                                type="number"
+                                min={0}
+                                step={50}
+                                className={styles.delayInput}
+                                value={message.delayMs ?? DEFAULT_DELAY_MS}
+                                onChange={(e) =>
+                                  updateMessageDelay(message.id, Math.max(0, parseInt(e.target.value, 10) || 0))
+                                }
+                              />
+                              <span className={styles.delayUnit}>ms</span>
+                            </div>
+                          )}
                           <button
                             className={styles.jsonViewerBtn}
                             onClick={() => handleOpenJSONViewer(message.id)}

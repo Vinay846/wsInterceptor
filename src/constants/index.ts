@@ -7,11 +7,19 @@ interface GameIdUpdateField {
 }
 
 // API URLs
+const API_BASE = 'http://localhost:8083';
 export const API_URLS = {
   DEV_WEBSOCKET: 'ws://localhost:8084',
-  DATA_ENDPOINT: 'http://localhost:8083/data',
-  UPDATE_GAME_IDS: 'http://localhost:8083/update-game-ids',
-  SAVE_COLLECTED_DATA: 'http://localhost:8083/save-collected-data',
+  DATA_ENDPOINT: `${API_BASE}/data`,
+  UPDATE_GAME_IDS: `${API_BASE}/update-game-ids`,
+  SAVE_COLLECTED_DATA: `${API_BASE}/save-collected-data`,
+  // Data file management & configuration
+  FILES: `${API_BASE}/files`,
+  FILE_BY_NAME: (fileName: string) => `${API_BASE}/files/${encodeURIComponent(fileName)}`,
+  ACTIVE_FILE: `${API_BASE}/active-file`,
+  INITIAL_KEYS: `${API_BASE}/config/initial-keys`,
+  UPDATE_MESSAGE: `${API_BASE}/update-message`,
+  DELETE_MESSAGE: (key: string) => `${API_BASE}/message/${encodeURIComponent(key)}`,
   PROXY_BASE: '',
   TABLE_CONFIG: (jsessionId: string, tableId: string, env: string = 'games') => 
     `https://${env}.pragmaticplaylive.net/api/ui/tableConfig?JSESSIONID=${jsessionId}&tableId=${tableId}&operatorNotification=true`,
@@ -203,9 +211,18 @@ export const SYSTEM_MESSAGE_TYPES = [
   'error'
 ] as const;
 
+// Sentinel value used in the message-key dropdown to trigger "add new message" mode
+export const ADD_NEW_MESSAGE_KEY = '__add_new_message__';
+
+// Default recording triggers (message keys that start/stop a round capture)
+export const DEFAULT_RECORD_START_KEY = 'game';
+export const DEFAULT_RECORD_STOP_KEY = 'winners';
+
 // LocalStorage Keys
 export const STORAGE_KEYS = {
   SHORTCUTS: 'websocket-shortcuts',
+  ENV_URL: 'websocket-env-url',
+  RECORDING: 'websocket-recording-config',
 } as const;
 
 // Timing Constants

@@ -90,6 +90,26 @@ export const selectLoadingStates = createSelector(
   })
 );
 
+// Config selectors
+export const selectEnvUrl = (state: RootState) => state.config.envUrl;
+export const selectDataFiles = (state: RootState) => state.config.files;
+export const selectActiveFile = (state: RootState) => state.config.activeFile;
+export const selectInitialKeys = (state: RootState) => state.config.initialKeys;
+const selectRecordStartKey = (state: RootState) => state.config.recordStartKey;
+const selectRecordStopKey = (state: RootState) => state.config.recordStopKey;
+
+// Memoized recording config selector
+export const selectRecordingConfig = createSelector(
+  [selectRecordStartKey, selectRecordStopKey],
+  (recordStartKey, recordStopKey) => ({ recordStartKey, recordStopKey })
+);
+
+// Memoized file-config selector
+export const selectFileConfig = createSelector(
+  [selectDataFiles, selectActiveFile, selectInitialKeys],
+  (files, activeFile, initialKeys) => ({ files, activeFile, initialKeys })
+);
+
 // Computed selectors
 export const selectIsConnected = createSelector(
   [selectConnectionStatus],

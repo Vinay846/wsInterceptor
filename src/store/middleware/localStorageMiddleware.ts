@@ -26,6 +26,23 @@ export const localStorageMiddleware: Middleware = (store) => (next) => (action) 
     }
   }
 
+  // Persist the Env WebSocket URL override
+  if (action.type === 'config/setEnvUrl') {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ENV_URL, store.getState().config.envUrl || '');
+    } catch (error) {
+    }
+  }
+
+  // Persist the recording trigger configuration
+  if (action.type === 'config/setRecordingConfig') {
+    try {
+      const { recordStartKey, recordStopKey } = store.getState().config;
+      localStorage.setItem(STORAGE_KEYS.RECORDING, JSON.stringify({ recordStartKey, recordStopKey }));
+    } catch (error) {
+    }
+  }
+
   return result;
 };
 
