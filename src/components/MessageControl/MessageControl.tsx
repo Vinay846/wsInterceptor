@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FilePlus, Info, RefreshCw, Table, Trash2 } from 'lucide-react';
 
 import { ADD_NEW_MESSAGE_KEY } from '../../constants';
@@ -11,6 +11,11 @@ const MessageControl: React.FC<MessageControlProps> = ({
   messageContent,
   responses,
   bridgeMode,
+  compact = false,
+  rawMode,
+  newMessageName,
+  onRawModeChange,
+  onNewMessageNameChange,
   onKeyChange,
   onContentChange,
   onSendMessage,
@@ -20,10 +25,6 @@ const MessageControl: React.FC<MessageControlProps> = ({
   onUpdateMessage,
   onDeleteMessage,
 }) => {
-  const [newMessageName, setNewMessageName] = useState<string>('');
-  // Raw mode disables JSON validation so XML / plain text can be sent as-is.
-  const [rawMode, setRawMode] = useState<boolean>(false);
-
   const isAddingNew = selectedKey === ADD_NEW_MESSAGE_KEY;
   const isExistingKey = !!selectedKey && !isAddingNew;
 
@@ -31,11 +32,11 @@ const MessageControl: React.FC<MessageControlProps> = ({
     const name = newMessageName.trim();
     if (!name) return;
     onAddMessage(name, messageContent);
-    setNewMessageName('');
+    onNewMessageNameChange('');
   };
 
   return (
-    <div className={styles.messageControlSection}>
+    <div className={`${styles.messageControlSection} ${compact ? styles.messageControlCompact : ''}`}>
       {/* Message Key Selection */}
       <select
         className={styles.messageSelect}
@@ -58,7 +59,7 @@ const MessageControl: React.FC<MessageControlProps> = ({
         <input
           className={styles.newNameInput}
           value={newMessageName}
-          onChange={(e) => setNewMessageName(e.target.value)}
+          onChange={(e) => onNewMessageNameChange(e.target.value)}
           placeholder="Message name (key to save in file)"
         />
       )}
@@ -78,7 +79,7 @@ const MessageControl: React.FC<MessageControlProps> = ({
           <button
             type="button"
             className={`${styles.rawToggleButton} ${rawMode ? styles.rawToggleActive : ''}`}
-            onClick={() => setRawMode((prev) => !prev)}
+            onClick={() => onRawModeChange(!rawMode)}
             aria-pressed={rawMode}
             title={
               rawMode

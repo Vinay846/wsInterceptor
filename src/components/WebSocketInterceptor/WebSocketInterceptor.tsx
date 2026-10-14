@@ -1,7 +1,9 @@
-import { Hash } from 'lucide-react';
+import { Hash, Lock, Unlock } from 'lucide-react';
 import React from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 // Redux
+import { ROUTES } from '../../routes';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   selectConnectionStatus,
@@ -19,6 +21,7 @@ import {
   selectToastMessage,
   selectLoadingStates,
   selectRoundStatus,
+  selectPersistRoundId,
   selectEnvUrl,
   selectFileConfig,
   selectRecordingConfig,
@@ -36,6 +39,7 @@ import {
   setShowShortcutModal,
   setShowErrorModal,
   hideToast,
+  togglePersistRoundId,
 } from '../../store/slices/uiSlice';
 
 // Components
@@ -46,7 +50,6 @@ import EnvConfigPanel from '../EnvConfigPanel/EnvConfigPanel';
 import ErrorModal from '../ErrorModal/ErrorModal';
 import JSONViewerModal from '../JSONViewerModal/JSONViewerModal';
 import MessageColumn from '../MessageColumn/MessageColumn';
-import MessageControl from '../MessageControl/MessageControl';
 import ShortcutModal from '../ShortcutModal/ShortcutModal';
 import ShortcutSection from '../ShortcutSection/ShortcutSection';
 import Toast from '../Toast/Toast';
@@ -74,6 +77,9 @@ import styles from './WebSocketInterceptor.module.css';
  */
 const WebSocketInterceptor: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { shortcutId } = useParams<{ shortcutId?: string }>();
 
   // ---- Redux state -------------------------------------------------------
   const connections = useAppSelector(selectConnectionStatus);
@@ -96,6 +102,7 @@ const WebSocketInterceptor: React.FC = () => {
   const toastMessage = useAppSelector(selectToastMessage);
   const { isUpdatingGameId } = useAppSelector(selectLoadingStates);
   const roundStatus = useAppSelector(selectRoundStatus);
+  const persistRoundId = useAppSelector(selectPersistRoundId);
   const envUrl = useAppSelector(selectEnvUrl);
   const { files: dataFiles, activeFile, initialKeys } = useAppSelector(selectFileConfig);
   const { recordStartKey, recordStopKey } = useAppSelector(selectRecordingConfig);
@@ -103,6 +110,65 @@ const WebSocketInterceptor: React.FC = () => {
   // ---- View-only local state --------------------------------------------
   const [showJSONViewer, setShowJSONViewer] = React.useState<boolean>(false);
   const [showEnvUrlEditor, setShowEnvUrlEditor] = React.useState<boolean>(false);
+  const [shortcutsExpanded, setShortcutsExpanded] = React.useState<boolean>(false);
+  const [messageRawMode, setMessageRawMode] = React.useState<boolean>(false);
+  const [newMessageName, setNewMessageName] = React.useState<string>('');
+
+  // URL → UI: /shortcuts expands panel; /shortcuts/new|edit opens the modal
+  React.useEffect(() => {
+    const path = location.pathname;
+
+    if (path === ROUTES.HOME) {
+      setShortcutsExpanded(false);
+      dispatch(setShowShortcutModal(false));
+      dispatch(setEditingShortcut(null));
+      return;
+    }
+
+    if (!path.startsWith('/shortcuts')) return;
+
+    setShortcutsExpanded(true);
+
+    if (path === ROUTES.SHORTCUT_NEW) {
+      dispatch(setEditingShortcut(null));
+      dispatch(setShowShortcutModal(true));
+      return;
+    }
+
+    if (shortcutId) {
+      const match = shortcuts.find((s) => s.id === shortcutId);
+      if (match) {
+        dispatch(setEditingShortcut(match));
+        dispatch(setShowShortcutModal(true));
+      } else {
+        navigate(ROUTES.SHORTCUTS, { replace: true });
+      }
+      return;
+    }
+
+    // /shortcuts — fullscreen list only
+    dispatch(setShowShortcutModal(false));
+    dispatch(setEditingShortcut(null));
+  }, [location.pathname, shortcutId, shortcuts, dispatch, navigate]);
+
+  React.useEffect(() => {
+    if (!shortcutsExpanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Modal has its own UI; Esc here only exits the shortcuts fullscreen route
+      if (e.key === 'Escape' && !showShortcutModal) {
+        navigate(ROUTES.HOME);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [shortcutsExpanded, showShortcutModal, navigate]);
 
   // ---- Feature hooks -----------------------------------------------------
   const refs = useInterceptorRefs();
@@ -192,10 +258,7 @@ const WebSocketInterceptor: React.FC = () => {
       {/* Shortcut Modal */}
       <ShortcutModal
         isOpen={showShortcutModal}
-        onClose={() => {
-          dispatch(setShowShortcutModal(false));
-          dispatch(setEditingShortcut(null));
-        }}
+        onClose={() => navigate(ROUTES.SHORTCUTS)}
         onSave={shortcutHandlers.handleSaveShortcut}
         editingShortcut={editingShortcut}
         availableKeys={Object.keys(responses)}
@@ -287,46 +350,76 @@ const WebSocketInterceptor: React.FC = () => {
           {/* Bridge Mode Control */}
           <BridgeModeControl bridgeMode={bridgeMode} onToggleBridgeMode={connectionsApi.toggleBridgeMode} />
 
-          {/* New Round Section */}
+          {/* New Round + Keep Round ID */}
           <div className={styles.buttonGroup}>
             <button
               className={styles.newRoundBtn}
-              onClick={() => void serverData.updateGameIdsWithRefresh()}
+              onClick={() => void serverData.updateGameIdsWithRefresh({ force: true })}
               disabled={isUpdatingGameId || bridgeMode}
               style={{ opacity: bridgeMode ? 0.5 : 1 }}
+              title="Force generate a new round / game ID"
             >
               <Hash size={16} />
               {isUpdatingGameId ? 'Starting New Round...' : 'New Round'}
             </button>
+            <button
+              type="button"
+              className={`${styles.persistRoundBtn} ${
+                persistRoundId ? styles.persistRoundBtnActive : styles.persistRoundBtnInactive
+              }`}
+              onClick={() => dispatch(togglePersistRoundId())}
+              disabled={bridgeMode}
+              style={{ opacity: bridgeMode ? 0.5 : 1 }}
+              title={
+                persistRoundId
+                  ? 'ON: sending shortcuts keeps the current round ID'
+                  : 'OFF: sending shortcuts auto-starts a new round ID'
+              }
+            >
+              {persistRoundId ? <Lock size={16} /> : <Unlock size={16} />}
+              {persistRoundId ? 'Keep Round ID ON' : 'Keep Round ID OFF'}
+            </button>
           </div>
 
-          {/* Message Control Section */}
-          <MessageControl
-            selectedKey={selectedKey}
-            messageContent={messageContent}
-            responses={responses}
-            bridgeMode={bridgeMode}
-            onKeyChange={composer.handleKeyChange}
-            onContentChange={composer.handleContentChange}
-            onSendMessage={composer.handleSendMessage}
-            onOpenCardPopup={composer.handleOpenCardPopup}
-            onOpenJSONViewer={() => setShowJSONViewer(true)}
-            onAddMessage={dataFilesApi.handleAddMessage}
-            onUpdateMessage={dataFilesApi.handleUpdateMessage}
-            onDeleteMessage={(key) => void dataFilesApi.handleDeleteMessage(key)}
-          />
-
-          {/* Shortcut Section */}
-          <ShortcutSection
-            shortcuts={shortcuts}
-            bridgeMode={bridgeMode}
-            devConnected={connections.dev === 'connected'}
-            onCreateShortcut={shortcutHandlers.handleCreateShortcut}
-            onEditShortcut={shortcutHandlers.handleEditShortcut}
-            onSendShortcut={shortcutHandlers.handleSendShortcut}
-            onDuplicateShortcut={shortcutHandlers.handleDuplicateShortcut}
-            onDeleteShortcut={shortcutHandlers.handleDeleteShortcut}
-          />
+          {/* Message Control + Shortcuts (expandable to fullscreen together) */}
+          <div
+            className={`${styles.messageShortcutPanel} ${
+              shortcutsExpanded ? styles.messageShortcutPanelExpanded : ''
+            }`}
+          >
+            <ShortcutSection
+              shortcuts={shortcuts}
+              bridgeMode={bridgeMode}
+              devConnected={connections.dev === 'connected'}
+              isExpanded={shortcutsExpanded}
+              onToggleExpand={() => navigate(shortcutsExpanded ? ROUTES.HOME : ROUTES.SHORTCUTS)}
+              messageControlProps={{
+                selectedKey,
+                messageContent,
+                responses,
+                bridgeMode,
+                rawMode: messageRawMode,
+                newMessageName,
+                onRawModeChange: setMessageRawMode,
+                onNewMessageNameChange: setNewMessageName,
+                onKeyChange: composer.handleKeyChange,
+                onContentChange: composer.handleContentChange,
+                onSendMessage: composer.handleSendMessage,
+                onOpenCardPopup: composer.handleOpenCardPopup,
+                onOpenJSONViewer: () => setShowJSONViewer(true),
+                onAddMessage: dataFilesApi.handleAddMessage,
+                onUpdateMessage: dataFilesApi.handleUpdateMessage,
+                onDeleteMessage: (key) => void dataFilesApi.handleDeleteMessage(key),
+              }}
+              onCreateShortcut={shortcutHandlers.handleCreateShortcut}
+              onEditShortcut={shortcutHandlers.handleEditShortcut}
+              onSendShortcut={shortcutHandlers.handleSendShortcut}
+              onDuplicateShortcut={shortcutHandlers.handleDuplicateShortcut}
+              onDeleteShortcut={shortcutHandlers.handleDeleteShortcut}
+              onPinShortcut={shortcutHandlers.handlePinShortcut}
+              onReorderShortcuts={shortcutHandlers.handleReorderShortcuts}
+            />
+          </div>
         </div>
 
         {/* Dev Messages Column */}

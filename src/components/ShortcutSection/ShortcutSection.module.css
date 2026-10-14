@@ -2,6 +2,19 @@
   border-top: 2px solid #e2e8f0;
   padding-top: 16px;
   margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.shortcutSectionExpanded {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .shortcutHeader {
@@ -9,6 +22,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .shortcutTitle {
@@ -18,6 +33,41 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0;
+}
+
+.shortcutFileHint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expandBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.expandBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 .shortcutCreateBtn {
@@ -43,12 +93,19 @@
 }
 
 .shortcutScrollable {
-  max-height: 280px;
+  max-height: 480px;
   overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 8px;
   background: #fafbfc;
+}
+
+.shortcutScrollableExpanded {
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .shortcutScrollable::-webkit-scrollbar {
@@ -69,6 +126,71 @@
   background: #94a3b8;
 }
 
+.shortcutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(8px, 1.2vw, 14px);
+  align-items: stretch;
+}
+
+.shortcutGridExpanded {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-content: start;
+}
+
+@media (min-width: 640px) {
+  .shortcutGridExpanded {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .shortcutGridExpanded {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .shortcutGridExpanded {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.shortcutGridExpanded .shortcutItemEnhanced {
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.messageControlItem {
+  cursor: default;
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.messageControlItem:active {
+  cursor: default;
+}
+
+.shortcutEmptyCard {
+  cursor: default;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.shortcutEmptyCard:active {
+  cursor: default;
+}
+
 .shortcutEmpty {
   text-align: center;
   color: #6b7280;
@@ -80,28 +202,125 @@
   border: 2px dashed #d1d5db;
 }
 
+.emptyIcon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.emptyTitle {
+  font-weight: 600;
+  color: #374151;
+  font-style: normal;
+  margin-bottom: 4px;
+}
+
+.emptySubtitle {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.emptyCreateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .shortcutItemEnhanced {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
+  padding: clamp(8px, 1.2vw, 14px);
+  transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.shortcutItemEnhanced:active {
+  cursor: grabbing;
 }
 
 .shortcutItemEnhanced:hover {
   border-color: #3b82f6;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  transform: translateY(-1px);
+}
+
+.shortcutPinned {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.shortcutPinned:hover {
+  border-color: #d97706;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.dragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.dragOver {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+  transform: scale(1.01);
+}
+
+.shortcutItemHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.dragHandle {
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.shortcutNameContainer {
+  flex: 1;
+  min-width: 0;
 }
 
 .shortcutName {
   font-weight: 600;
   color: #1e293b;
-  font-size: 14px;
+  font-size: clamp(12px, 1.1vw, 14px);
   margin-bottom: 4px;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  word-break: break-word;
+}
+
+.pinIndicator {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.shortcutBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
 }
 
 .shortcutMessageCount {
@@ -111,7 +330,43 @@
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  margin-left: 8px;
+}
+
+.lastUsedBadge {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.pinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.pinBtn:hover:not(:disabled) {
+  border-color: #f59e0b;
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.pinBtnActive {
+  border-color: #f59e0b;
+  color: #d97706;
+  background: #fef3c7;
 }
 
 .shortcutMeta {
@@ -119,12 +374,26 @@
   color: #64748b;
   margin-bottom: 8px;
   line-height: 1.3;
+  flex: 1;
+}
+
+.messageKeys {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.shortcutCreated {
+  margin-top: 4px;
 }
 
 .shortcutActions {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .shortcutBtn {
@@ -134,11 +403,14 @@
   padding: 4px 8px;
   border: none;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: clamp(10px, 0.95vw, 12px);
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
   min-height: 24px;
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
 }
 
 .shortcutBtn:disabled {
@@ -193,4 +465,14 @@
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.shortcutFooter {
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.footerStats {
+  font-size: 12px;
+  color: #64748b;
 }

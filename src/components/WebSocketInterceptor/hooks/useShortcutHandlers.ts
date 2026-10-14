@@ -1,12 +1,17 @@
 import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { ROUTES } from '../../../routes';
+import { store } from '../../../store';
 import { useAppDispatch } from '../../../store/hooks';
 import { addError } from '../../../store/slices/connectionSlice';
 import { addDevMessage } from '../../../store/slices/messageSlice';
 import {
   addShortcut,
   deleteShortcut,
+  reorderShortcuts,
   setEditingShortcut,
+  togglePinShortcut,
   updateShortcut,
   updateShortcutLastUsed,
 } from '../../../store/slices/shortcutSlice';
@@ -15,6 +20,7 @@ import type { ConnectionStatus, MessageShortcut } from '../../../types';
 
 import type { InterceptorRefs } from './useInterceptorRefs';
 import type { Notifications } from './useNotifications';
+import type { UpdateGameIdsOptions } from './useServerData';
 
 interface UseShortcutHandlersParams {
   refs: Pick<InterceptorRefs, 'devWsRef'>;
@@ -22,7 +28,7 @@ interface UseShortcutHandlersParams {
   shortcuts: MessageShortcut[];
   editingShortcut: MessageShortcut | null;
   devConnectionStatus: ConnectionStatus['dev'];
-  updateGameIdsWithRefresh: () => Promise<void>;
+  updateGameIdsWithRefresh: (options?: UpdateGameIdsOptions) => Promise<void>;
 }
 
 export interface ShortcutHandlers {
@@ -32,6 +38,8 @@ export interface ShortcutHandlers {
   handleDeleteShortcut: (shortcutId: string) => void;
   handleSaveShortcut: (shortcutData: Omit<MessageShortcut, 'id' | 'createdAt'>) => void;
   handleSendShortcut: (shortcut: MessageShortcut) => void;
+  handlePinShortcut: (shortcutId: string) => void;
+  handleReorderShortcuts: (fromId: string, toId: string) => void;
 }
 
 /**
@@ -46,20 +54,19 @@ export const useShortcutHandlers = ({
   updateGameIdsWithRefresh,
 }: UseShortcutHandlersParams): ShortcutHandlers => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { showToastMessage } = notifications;
   const { devWsRef } = refs;
 
   const handleCreateShortcut = useCallback((): void => {
-    dispatch(setEditingShortcut(null));
-    dispatch(setShowShortcutModal(true));
-  }, [dispatch]);
+    navigate(ROUTES.SHORTCUT_NEW);
+  }, [navigate]);
 
   const handleEditShortcut = useCallback(
     (shortcut: MessageShortcut): void => {
-      dispatch(setEditingShortcut(shortcut));
-      dispatch(setShowShortcutModal(true));
+      navigate(ROUTES.shortcutEdit(shortcut.id));
     },
-    [dispatch]
+    [navigate]
   );
 
   const handleDuplicateShortcut = useCallback(
@@ -70,6 +77,7 @@ export const useShortcutHandlers = ({
         name: `${shortcut.name} (Copy)`,
         createdAt: new Date().toISOString(),
         lastUsed: undefined,
+        pinned: false,
       };
 
       dispatch(addShortcut(duplicatedShortcut));
@@ -108,8 +116,9 @@ export const useShortcutHandlers = ({
 
       dispatch(setShowShortcutModal(false));
       dispatch(setEditingShortcut(null));
+      navigate(ROUTES.SHORTCUTS);
     },
-    [editingShortcut, showToastMessage, dispatch]
+    [editingShortcut, showToastMessage, dispatch, navigate]
   );
 
   const handleSendShortcut = useCallback(
@@ -154,20 +163,41 @@ export const useShortcutHandlers = ({
         // Total time until the last message has been dispatched
         const totalDuration = useSequential ? cumulative : shortcut.messages.length * 200;
 
-        // Update round ID and sync everywhere after sending all messages
-        setTimeout(
-          () => {
-            updateGameIdsWithRefresh().catch(() => {});
-          },
-          totalDuration + 100
-        ); // Wait for all messages to be sent + small buffer
+        // Read live flag from store (avoids stale closures). updateGameIdsWithRefresh
+        // also no-ops when Keep Round ID is ON unless force: true.
+        const persistRoundId = store.getState().ui.persistRoundId;
 
-        showToastMessage('🚀 Shortcut Sent!', `All ${shortcut.messages.length} messages sent successfully`);
+        if (!persistRoundId) {
+          setTimeout(() => {
+            updateGameIdsWithRefresh().catch(() => {});
+          }, totalDuration + 100);
+        }
+
+        showToastMessage(
+          '🚀 Shortcut Sent!',
+          persistRoundId
+            ? `All ${shortcut.messages.length} messages sent — round ID kept`
+            : `All ${shortcut.messages.length} messages sent successfully`
+        );
       } catch (error) {
         dispatch(addError({ type: 'shortcut_send', message: 'Failed to send shortcut messages' }));
       }
     },
     [devConnectionStatus, dispatch, showToastMessage, updateGameIdsWithRefresh, devWsRef]
+  );
+
+  const handlePinShortcut = useCallback(
+    (shortcutId: string): void => {
+      dispatch(togglePinShortcut(shortcutId));
+    },
+    [dispatch]
+  );
+
+  const handleReorderShortcuts = useCallback(
+    (fromId: string, toId: string): void => {
+      dispatch(reorderShortcuts({ fromId, toId }));
+    },
+    [dispatch]
   );
 
   return {
@@ -177,5 +207,7 @@ export const useShortcutHandlers = ({
     handleDeleteShortcut,
     handleSaveShortcut,
     handleSendShortcut,
+    handlePinShortcut,
+    handleReorderShortcuts,
   };
 };

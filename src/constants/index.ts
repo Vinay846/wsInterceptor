@@ -6,11 +6,12 @@ interface GameIdUpdateField {
   field: string;
 }
 
-// API URLs
-const API_BASE = 'http://localhost:8083';
+// API URLs — same-origin relative paths (Vite proxies these in dev; Express serves them in prod)
+const API_BASE = '';
 export const API_URLS = {
   DEV_WEBSOCKET: 'ws://localhost:8084',
   DATA_ENDPOINT: `${API_BASE}/data`,
+  SHORTCUTS: `${API_BASE}/api/shortcuts`,
   UPDATE_GAME_IDS: `${API_BASE}/update-game-ids`,
   SAVE_COLLECTED_DATA: `${API_BASE}/save-collected-data`,
   // Data file management & configuration

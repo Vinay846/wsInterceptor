@@ -1,62 +1,83 @@
 import { Middleware } from '@reduxjs/toolkit';
-import { STORAGE_KEYS } from '../../constants';
 
-// Actions that should trigger localStorage save
-const SHORTCUT_ACTIONS = [
+import { API_URLS, STORAGE_KEYS } from '../../constants';
+import type { MessageShortcut } from '../../types';
+import { saveShortcutsToServer } from '../../utils/shortcutsApi';
+
+// Actions that should trigger shortcuts.json save on the server
+const SHORTCUT_ACTIONS = new Set([
   'shortcuts/addShortcut',
   'shortcuts/updateShortcut',
   'shortcuts/deleteShortcut',
   'shortcuts/duplicateShortcut',
   'shortcuts/updateShortcutLastUsed',
+  'shortcuts/togglePinShortcut',
+  'shortcuts/reorderShortcuts',
   'shortcuts/setShortcuts',
   'shortcuts/updateShortcutGameIds',
-];
+  'shortcuts/createShortcutFromTemplate',
+]);
 
-// Middleware to sync shortcuts to localStorage
+let saveShortcutsTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingShortcuts: MessageShortcut[] | null = null;
+
+function persistShortcutsToFile(shortcuts: MessageShortcut[]): void {
+  pendingShortcuts = shortcuts;
+  if (saveShortcutsTimer) clearTimeout(saveShortcutsTimer);
+  saveShortcutsTimer = setTimeout(() => {
+    saveShortcutsTimer = null;
+    const toSave = pendingShortcuts;
+    pendingShortcuts = null;
+    if (!toSave) return;
+    void saveShortcutsToServer(toSave).catch((err) => {
+      console.error('Failed to save shortcuts.json:', err);
+    });
+  }, 150);
+}
+
+// Flush pending write on tab close so the last edit is not lost
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (!pendingShortcuts) return;
+    // keepalive fetch so the write can finish during unload
+    void fetch(API_URLS.SHORTCUTS, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shortcuts: pendingShortcuts }),
+      keepalive: true,
+    });
+  });
+}
+
+// Middleware to sync shortcuts to shortcuts.json (and keep env/recording in localStorage)
 export const localStorageMiddleware: Middleware = (store) => (next) => (action) => {
   const result = next(action);
+  const type = (action as { type?: string }).type;
 
-  // Check if this action affects shortcuts
-  if (SHORTCUT_ACTIONS.includes(action.type)) {
+  if (type && SHORTCUT_ACTIONS.has(type)) {
     try {
-      const state = store.getState();
-      const shortcuts = state.shortcuts.shortcuts;
-      localStorage.setItem(STORAGE_KEYS.SHORTCUTS, JSON.stringify(shortcuts));
-    } catch (error) {
+      persistShortcutsToFile(store.getState().shortcuts.shortcuts);
+    } catch {
+      // ignore
     }
   }
 
-  // Persist the Env WebSocket URL override
-  if (action.type === 'config/setEnvUrl') {
+  if (type === 'config/setEnvUrl') {
     try {
       localStorage.setItem(STORAGE_KEYS.ENV_URL, store.getState().config.envUrl || '');
-    } catch (error) {
+    } catch {
+      // ignore
     }
   }
 
-  // Persist the recording trigger configuration
-  if (action.type === 'config/setRecordingConfig') {
+  if (type === 'config/setRecordingConfig') {
     try {
       const { recordStartKey, recordStopKey } = store.getState().config;
       localStorage.setItem(STORAGE_KEYS.RECORDING, JSON.stringify({ recordStartKey, recordStopKey }));
-    } catch (error) {
+    } catch {
+      // ignore
     }
   }
 
   return result;
 };
-
-// Load shortcuts from localStorage on app init
-export const loadShortcutsFromStorage = () => {
-  try {
-    const savedShortcuts = localStorage.getItem(STORAGE_KEYS.SHORTCUTS);
-    if (savedShortcuts) {
-      const parsed = JSON.parse(savedShortcuts);
-      return parsed;
-    }
-    return [];
-  } catch (error) {
-    return [];
-  }
-};
-

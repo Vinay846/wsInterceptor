@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { API_URLS } from '../../../constants';
 import { useAppDispatch } from '../../../store/hooks';
+import { store } from '../../../store';
 import { addError } from '../../../store/slices/connectionSlice';
 import {
   setCollectedRoundData,
@@ -22,9 +23,14 @@ interface UseServerDataParams {
   shortcuts: MessageShortcut[];
 }
 
+export type UpdateGameIdsOptions = {
+  /** When true, rotate even if Keep Round ID is ON (used by New Round button) */
+  force?: boolean;
+};
+
 export interface ServerData {
   refreshDataFromServer: () => Promise<void>;
-  updateGameIdsWithRefresh: () => Promise<void>;
+  updateGameIdsWithRefresh: (options?: UpdateGameIdsOptions) => Promise<void>;
 }
 
 /**
@@ -72,37 +78,44 @@ export const useServerData = ({
     }
   }, [showSuccessMessage, collectedRoundData, dispatch]);
 
-  const updateGameIdsWithRefresh = useCallback(async (): Promise<void> => {
-    const randomGameId = generateRandomGameId();
-    dispatch(setIsUpdatingGameId(true));
-
-    try {
-      const response = await fetch(API_URLS.UPDATE_GAME_IDS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newGameId: randomGameId }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const updateGameIdsWithRefresh = useCallback(
+    async (options?: UpdateGameIdsOptions): Promise<void> => {
+      const persistRoundId = store.getState().ui.persistRoundId;
+      if (persistRoundId && !options?.force) {
+        // Keep Round ID is ON — do not rotate after shortcut / auto sends
+        return;
       }
 
-      const result = await response.json();
-      await refreshDataFromServer();
-      dispatch(setCurrentGameId(randomGameId));
+      const randomGameId = generateRandomGameId();
+      dispatch(setIsUpdatingGameId(true));
 
-      const updatedShortcuts = shortcuts.map((shortcut) => updateShortcutGameIds(shortcut, randomGameId));
-      dispatch(setShortcuts(updatedShortcuts));
+      try {
+        const response = await fetch(API_URLS.UPDATE_GAME_IDS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newGameId: randomGameId }),
+        });
 
-      // ID update complete - no automatic game message sending
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      showToastMessage('🎉 New Round Started!', `Game ID updated to: ${result.newGameId}. All shortcuts updated!`);
-    } catch (error: any) {
-      dispatch(addError({ type: 'update_game_ids', message: `Failed to update game IDs: ${error.message}` }));
-    } finally {
-      dispatch(setIsUpdatingGameId(false));
-    }
-  }, [dispatch, refreshDataFromServer, showToastMessage, shortcuts]);
+        const result = await response.json();
+        await refreshDataFromServer();
+        dispatch(setCurrentGameId(randomGameId));
+
+        const updatedShortcuts = shortcuts.map((shortcut) => updateShortcutGameIds(shortcut, randomGameId));
+        dispatch(setShortcuts(updatedShortcuts));
+
+        showToastMessage('🎉 New Round Started!', `Game ID updated to: ${result.newGameId}. All shortcuts updated!`);
+      } catch (error: any) {
+        dispatch(addError({ type: 'update_game_ids', message: `Failed to update game IDs: ${error.message}` }));
+      } finally {
+        dispatch(setIsUpdatingGameId(false));
+      }
+    },
+    [dispatch, refreshDataFromServer, showToastMessage, shortcuts]
+  );
 
   return { refreshDataFromServer, updateGameIdsWithRefresh };
 };

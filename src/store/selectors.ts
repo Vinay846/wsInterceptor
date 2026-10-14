@@ -68,6 +68,7 @@ const selectShowShortcutModal = (state: RootState) => state.ui.showShortcutModal
 const selectShowErrorModal = (state: RootState) => state.ui.showErrorModal;
 export const selectToastMessage = (state: RootState) => state.ui.toastMessage;
 export const selectRoundStatus = (state: RootState) => state.ui.roundStatus;
+export const selectPersistRoundId = (state: RootState) => state.ui.persistRoundId;
 const selectIsUpdatingGameId = (state: RootState) => state.ui.isUpdatingGameId;
 const selectIsSendingShortcut = (state: RootState) => state.ui.isSendingShortcut;
 

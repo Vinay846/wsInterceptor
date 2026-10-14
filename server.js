@@ -44,43 +44,50 @@ if (process.pkg && !fs.existsSync(dataDir)) {
 }
 
 // Detect if running in packaged mode (pkg)
-// If packaged, store data.json in user-writable directory (no admin required)
-// If not packaged, store it in __dirname (development mode)
+// If packaged, store data.json / shortcuts.json in user-writable directory (no admin required)
+// If not packaged, store them in __dirname (development mode)
 const DATA_FILE = path.join(dataDir, 'data.json');
+const SHORTCUTS_FILE = path.join(dataDir, 'shortcuts.json');
 
-// If running in packaged mode and data.json doesn't exist in writable location,
-// copy it from the bundled version
-if (process.pkg && !fs.existsSync(DATA_FILE)) {
-  const bundledDataFile = path.join(__dirname, 'data.json');
-  try {
-    if (fs.existsSync(bundledDataFile)) {
-      const bundledData = fs.readFileSync(bundledDataFile, 'utf8');
-      fs.writeFileSync(DATA_FILE, bundledData);
-    } else {
-      // If bundled file doesn't exist, create default
-      const initialData = {
-        savedData: {
-          savedAt: new Date().toISOString(),
-          messageCount: 0
-        },
-        lastUpdated: new Date().toISOString()
-      };
-      fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
-    }
-  } catch (err) {
-    console.error('❌ Error setting up data.json:', err);
-  }
-} else if (!process.pkg && !fs.existsSync(DATA_FILE)) {
-  // Development mode - create default if doesn't exist
-  const initialData = {
-    savedData: {
-      savedAt: new Date().toISOString(),
-      messageCount: 0
-    },
+function getDefaultShortcutsStructure() {
+  return {
+    shortcuts: [],
     lastUpdated: new Date().toISOString()
   };
-  fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
 }
+
+// Ensure a JSON data file exists: copy from bundle when packaged, else create default
+function ensureJsonFile(filePath, bundledName, getDefault) {
+  if (fs.existsSync(filePath)) return;
+
+  if (process.pkg) {
+    const bundledFile = path.join(__dirname, bundledName);
+    try {
+      if (fs.existsSync(bundledFile)) {
+        fs.writeFileSync(filePath, fs.readFileSync(bundledFile, 'utf8'));
+      } else {
+        fs.writeFileSync(filePath, JSON.stringify(getDefault(), null, 2));
+      }
+    } catch (err) {
+      console.error(`❌ Error setting up ${bundledName}:`, err);
+    }
+  } else {
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(getDefault(), null, 2));
+    } catch (err) {
+      console.error(`❌ Error creating ${bundledName}:`, err);
+    }
+  }
+}
+
+ensureJsonFile(DATA_FILE, 'data.json', () => ({
+  savedData: {
+    savedAt: new Date().toISOString(),
+    messageCount: 0
+  },
+  lastUpdated: new Date().toISOString()
+}));
+ensureJsonFile(SHORTCUTS_FILE, 'shortcuts.json', getDefaultShortcutsStructure);
 
 // ---------------------------------------------------------------------------
 // Configuration management (data file registry, active file, initial keys)
@@ -108,7 +115,9 @@ function sanitizeFileName(name) {
   if (!safe.toLowerCase().endsWith('.json')) safe += '.json';
   // Disallow path separators and any unexpected characters
   if (!/^[\w\-. ]+\.json$/i.test(safe)) return null;
-  if (safe.toLowerCase() === 'config.json') return null; // reserved
+  // Reserved system files — not selectable as message data files
+  const reserved = ['config.json', 'shortcuts.json'];
+  if (reserved.includes(safe.toLowerCase())) return null;
   return safe;
 }
 
@@ -181,12 +190,20 @@ function getActiveDataFilePath() {
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'dist')));
 
-// Catch-all route to serve the React app for any other requests
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+// Serve built UI — disable caching so rebuilds always show up in the browser
+app.use(express.static(path.join(__dirname, 'dist'), {
+  etag: false,
+  lastModified: false,
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    } else {
+      // Hashed asset filenames are fine to cache briefly; still prefer revalidation
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  },
+}));
 
 const wss = new WebSocket.Server({ port: 8084 });
 const clients = new Map();
@@ -514,6 +531,63 @@ app.get('/data', (req, res) => {
   });
 });
 
+// Shortcuts file — same persistence pattern as data.json
+// Use /api/shortcuts so it does not collide with the SPA route /shortcuts
+app.get('/api/shortcuts', (req, res) => {
+  fs.readFile(SHORTCUTS_FILE, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading shortcuts file:', err);
+      return res.status(500).json({ error: 'Error reading shortcuts file' });
+    }
+
+    try {
+      const jsonData = JSON.parse(data);
+      // Normalize: allow a bare array for backwards compatibility
+      if (Array.isArray(jsonData)) {
+        return res.json({ shortcuts: jsonData, lastUpdated: null });
+      }
+      res.json({
+        shortcuts: Array.isArray(jsonData.shortcuts) ? jsonData.shortcuts : [],
+        lastUpdated: jsonData.lastUpdated || null
+      });
+    } catch (parseErr) {
+      console.error('Invalid shortcuts JSON format:', parseErr);
+      res.status(500).json({ error: 'Corrupted shortcuts JSON file' });
+    }
+  });
+});
+
+app.put('/api/shortcuts', (req, res) => {
+  const incoming = req.body;
+  let shortcuts = [];
+
+  if (Array.isArray(incoming)) {
+    shortcuts = incoming;
+  } else if (incoming && Array.isArray(incoming.shortcuts)) {
+    shortcuts = incoming.shortcuts;
+  } else {
+    return res.status(400).json({ error: 'Body must be { shortcuts: [...] } or a shortcuts array' });
+  }
+
+  const dataToSave = {
+    shortcuts,
+    lastUpdated: new Date().toISOString()
+  };
+
+  fs.writeFile(SHORTCUTS_FILE, JSON.stringify(dataToSave, null, 2), (writeErr) => {
+    if (writeErr) {
+      console.error('Error saving shortcuts:', writeErr);
+      return res.status(500).json({ error: 'Error saving shortcuts' });
+    }
+
+    res.json({
+      message: 'Shortcuts saved successfully',
+      count: shortcuts.length,
+      data: dataToSave
+    });
+  });
+});
+
 app.post('/update-game-ids', (req, res) => {
   const { newGameId } = req.body;
 
@@ -834,6 +908,11 @@ app.delete('/message/:key', (req, res) => {
   });
 });
 
+// SPA fallback — client routes like /shortcuts and /shortcuts/new
+app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 app.listen(PORT, () => {
   console.log('\n');
@@ -857,7 +936,9 @@ app.listen(PORT, () => {
   console.log('║                                                          ║');
   if (process.pkg) {
     const dataFilePath = DATA_FILE.length > 52 ? '...' + DATA_FILE.slice(-49) : DATA_FILE;
+    const shortcutsFilePath = SHORTCUTS_FILE.length > 52 ? '...' + SHORTCUTS_FILE.slice(-49) : SHORTCUTS_FILE;
     console.log(`║  📁 Data file      : ${dataFilePath.padEnd(52)} ║`);
+    console.log(`║  📁 Shortcuts file : ${shortcutsFilePath.padEnd(52)} ║`);
   }
   console.log('╠══════════════════════════════════════════════════════════╣');
   console.log('║                                                          ║');

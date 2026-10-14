@@ -1,5 +1,16 @@
-import { Plus, Trash2, Eye, ArrowUp, ArrowDown, Clock } from 'lucide-react';
-import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Plus,
+  Trash2,
+  Eye,
+  ArrowUp,
+  ArrowDown,
+  Clock,
+  Maximize2,
+  Minimize2,
+  GripVertical,
+} from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 import { ShortcutModalProps, ShortcutMessage } from '../../types';
 import { isValidJSON } from '../../utils/websocket';
@@ -25,6 +36,9 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
   const [sequentialSend, setSequentialSend] = useState(false);
   const [showJSONViewer, setShowJSONViewer] = useState(false);
   const [currentViewingMessageId, setCurrentViewingMessageId] = useState<string | null>(null);
+  const [messagesExpanded, setMessagesExpanded] = useState(false);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragIdRef = useRef<string | null>(null);
 
   const DEFAULT_DELAY_MS = 200;
 
@@ -38,7 +52,25 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
       setMessages([]);
       setSequentialSend(false);
     }
+    setMessagesExpanded(false);
   }, [editingShortcut, isOpen]);
+
+  // Fullscreen messages list: lock body scroll + Esc to exit
+  useEffect(() => {
+    if (!messagesExpanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMessagesExpanded(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [messagesExpanded]);
 
   const addMessage = () => {
     const newMessage: ShortcutMessage = {
@@ -80,6 +112,53 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
       [newMessages[index], newMessages[index + 1]] = [newMessages[index + 1], newMessages[index]];
       return newMessages;
     });
+  };
+
+  const reorderMessages = (fromId: string, toId: string) => {
+    setMessages((prev) => {
+      const fromIndex = prev.findIndex((m) => m.id === fromId);
+      const toIndex = prev.findIndex((m) => m.id === toId);
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+
+  const handleDragStart = (e: React.DragEvent<HTMLElement>, id: string) => {
+    dragIdRef.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+    const item = (e.currentTarget as HTMLElement).closest(`.${styles.messageItem}`);
+    item?.classList.add(styles.dragging);
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLElement>) => {
+    dragIdRef.current = null;
+    setDragOverId(null);
+    const item = (e.currentTarget as HTMLElement).closest(`.${styles.messageItem}`);
+    item?.classList.remove(styles.dragging);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, id: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverId !== id) setDragOverId(id);
+  };
+
+  const handleDragLeave = (_e: React.DragEvent<HTMLDivElement>, id: string) => {
+    if (dragOverId === id) setDragOverId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, toId: string) => {
+    e.preventDefault();
+    const fromId = dragIdRef.current || e.dataTransfer.getData('text/plain');
+    setDragOverId(null);
+    if (fromId && fromId !== toId) {
+      reorderMessages(fromId, toId);
+    }
+    dragIdRef.current = null;
   };
 
   const handleOpenJSONViewer = (messageId: string) => {
@@ -183,18 +262,214 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
 
   if (!isOpen) return null;
 
+  const renderExpandToggle = () => (
+    <button
+      type="button"
+      className={styles.expandBtn}
+      onClick={() => setMessagesExpanded((v) => !v)}
+      title={messagesExpanded ? 'Exit full screen' : 'Expand messages to full screen'}
+      aria-label={messagesExpanded ? 'Exit full screen' : 'Expand messages to full screen'}
+    >
+      {messagesExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+    </button>
+  );
+
+  const messagesSection = (
+    <div
+      className={`${styles.messageListSection} ${
+        messagesExpanded ? styles.messageListSectionExpanded : ''
+      }`}
+    >
+      <div className={styles.messageListHeader}>
+        <h3 className={styles.messageListTitle}>Messages ({messages.length})</h3>
+        <div className={styles.messageListHeaderActions}>
+          {renderExpandToggle()}
+          <button
+            type="button"
+            className={`${styles.sequenceToggleBtn} ${sequentialSend ? styles.sequenceToggleActive : ''}`}
+            onClick={() => setSequentialSend((prev) => !prev)}
+            aria-pressed={sequentialSend}
+            title={
+              sequentialSend
+                ? 'Sequential send is ON - each message waits for its delay before the next is sent. Click to disable.'
+                : 'Send messages in sequence with a per-message delay'
+            }
+          >
+            <Clock size={14} />
+            {sequentialSend ? 'Sequence: ON' : 'Sequence: OFF'}
+          </button>
+          <button type="button" className={styles.addMessageBtn} onClick={addMessage}>
+            <Plus size={14} />
+            Add Message
+          </button>
+        </div>
+      </div>
+
+      {sequentialSend && messages.length > 0 && (
+        <div className={styles.sequenceHint}>
+          The first message is sent instantly; each following message waits for the sum of the previous
+          messages&apos; delays (e.g. 200ms then 200ms → sent at 0ms, 200ms, 400ms).
+        </div>
+      )}
+
+      {messages.length === 0 ? (
+        <div className={styles.emptyMessageList}>
+          <div className={styles.emptyIcon}>📝</div>
+          <div className={styles.emptyText}>No messages added yet</div>
+          <div className={styles.emptySubtext}>Click &quot;Add Message&quot; to start building your shortcut</div>
+        </div>
+      ) : (
+        <div className={`${styles.messagesList} ${messagesExpanded ? styles.messagesListExpanded : ''}`}>
+          {messages.map((message, index) => (
+            <div
+              key={message.id}
+              className={`${styles.messageItem} ${dragOverId === message.id ? styles.dragOver : ''}`}
+              onDragOver={(e) => handleDragOver(e, message.id)}
+              onDragLeave={(e) => handleDragLeave(e, message.id)}
+              onDrop={(e) => handleDrop(e, message.id)}
+            >
+              <div className={styles.messageItemHeader}>
+                <div className={styles.messageItemTitleRow}>
+                  <div
+                    className={styles.dragHandle}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, message.id)}
+                    onDragEnd={handleDragEnd}
+                    title="Drag to reorder"
+                    aria-label="Drag to reorder"
+                  >
+                    <GripVertical size={14} />
+                  </div>
+                  <span className={styles.messageItemTitle}>
+                    Message #{index + 1}
+                    {message.messageKey && (
+                      <span className={styles.messageKeyBadge}>{message.messageKey}</span>
+                    )}
+                  </span>
+                </div>
+                <div className={styles.messageHeaderButtons}>
+                  {sequentialSend && (
+                    <div
+                      className={styles.delayInputWrap}
+                      title="Delay (ms) that elapses after this message before the next one is sent"
+                    >
+                      <Clock size={11} />
+                      <input
+                        type="number"
+                        min={0}
+                        step={50}
+                        className={styles.delayInput}
+                        value={message.delayMs ?? DEFAULT_DELAY_MS}
+                        onChange={(e) =>
+                          updateMessageDelay(message.id, Math.max(0, parseInt(e.target.value, 10) || 0))
+                        }
+                      />
+                      <span className={styles.delayUnit}>ms</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    className={styles.jsonViewerBtn}
+                    onClick={() => handleOpenJSONViewer(message.id)}
+                    disabled={!message.content || !isValidJSON(message.content)}
+                    title="View JSON as Table"
+                  >
+                    <Eye size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.moveMessageBtn}
+                    onClick={() => moveMessageUp(message.id)}
+                    disabled={index === 0}
+                    title="Move message up"
+                  >
+                    <ArrowUp size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.moveMessageBtn}
+                    onClick={() => moveMessageDown(message.id)}
+                    disabled={index === messages.length - 1}
+                    title="Move message down"
+                  >
+                    <ArrowDown size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.removeMessageBtn}
+                    onClick={() => removeMessage(message.id)}
+                    title="Remove this message"
+                  >
+                    <Trash2 size={12} />
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <select
+                value={message.messageKey}
+                onChange={(e) => handleMessageKeyChange(message.id, e.target.value)}
+                className={styles.messageKeySelect}
+              >
+                <option value="">-- Select Message Key --</option>
+                {availableKeys.map((key) => (
+                  <option key={key} value={key}>
+                    {key}
+                  </option>
+                ))}
+              </select>
+
+              <textarea
+                value={message.content}
+                onChange={(e) => updateMessage(message.id, 'content', e.target.value)}
+                placeholder="Enter JSON content for the message..."
+                className={styles.messageContentTextarea}
+              />
+
+              <div className={styles.messageActions}>
+                {message.content && (
+                  <span
+                    className={`${styles.messageStatus} ${
+                      isValidJSON(message.content) ? styles.jsonValidSmall : styles.jsonInvalidSmall
+                    }`}
+                  >
+                    {isValidJSON(message.content) ? '✅ Valid JSON' : '❌ Invalid JSON'}
+                  </span>
+                )}
+
+                {message.messageKey === 'card' && message.content && isValidJSON(message.content) && (
+                  <button
+                    type="button"
+                    className={styles.cardEditButtonSmall}
+                    onClick={() => handleCardEdit(message.id)}
+                    title="Edit card selection"
+                  >
+                    🃏 Edit Card
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>{editingShortcut ? '✏️ Edit Shortcut' : '➕ Create New Shortcut'}</h2>
-          <button className={styles.modalClose} onClick={onClose}>
-            ×
-          </button>
+          <div className={styles.modalHeaderActions}>
+            {/* Expand icon on the right of Create/Edit Shortcut header */}
+            {renderExpandToggle()}
+            <button type="button" className={styles.modalClose} onClick={onClose}>
+              ×
+            </button>
+          </div>
         </div>
 
         <div className={styles.modalBody}>
-          {/* Shortcut Name Input */}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Shortcut Name</label>
             <input
@@ -206,159 +481,16 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
             />
           </div>
 
-          {/* Messages Section */}
-          <div className={styles.messageListSection}>
-            <div className={styles.messageListHeader}>
-              <h3 className={styles.messageListTitle}>Messages ({messages.length})</h3>
-              <div className={styles.messageListHeaderActions}>
-                <button
-                  type="button"
-                  className={`${styles.sequenceToggleBtn} ${sequentialSend ? styles.sequenceToggleActive : ''}`}
-                  onClick={() => setSequentialSend((prev) => !prev)}
-                  aria-pressed={sequentialSend}
-                  title={
-                    sequentialSend
-                      ? 'Sequential send is ON - each message waits for its delay before the next is sent. Click to disable.'
-                      : 'Send messages in sequence with a per-message delay'
-                  }
-                >
-                  <Clock size={14} />
-                  {sequentialSend ? 'Sequence: ON' : 'Sequence: OFF'}
-                </button>
-                <button className={styles.addMessageBtn} onClick={addMessage}>
-                  <Plus size={14} />
-                  Add Message
-                </button>
-              </div>
+          {/* Inline messages list (hidden while portaled fullscreen) */}
+          {!messagesExpanded && messagesSection}
+
+          {/* Placeholder so layout stays stable while expanded */}
+          {messagesExpanded && (
+            <div className={styles.messageListPlaceholder}>
+              Messages open in full screen — press Esc or the minimize icon to return
             </div>
+          )}
 
-            {sequentialSend && messages.length > 0 && (
-              <div className={styles.sequenceHint}>
-                The first message is sent instantly; each following message waits for the sum of the previous
-                messages&apos; delays (e.g. 200ms then 200ms → sent at 0ms, 200ms, 400ms).
-              </div>
-            )}
-
-            {messages.length === 0 ? (
-              <div className={styles.emptyMessageList}>
-                <div className={styles.emptyIcon}>📝</div>
-                <div className={styles.emptyText}>No messages added yet</div>
-                <div className={styles.emptySubtext}>Click &quot;Add Message&quot; to start building your shortcut</div>
-              </div>
-            ) : (
-              <div className={styles.messagesList}>
-                {messages.map((message, index) => {
-                  return (
-                    <div key={message.id} className={styles.messageItem}>
-                      <div className={styles.messageItemHeader}>
-                        <span className={styles.messageItemTitle}>
-                          Message #{index + 1}
-                          {message.messageKey && <span className={styles.messageKeyBadge}>{message.messageKey}</span>}
-                        </span>
-                        <div className={styles.messageHeaderButtons}>
-                          {sequentialSend && (
-                            <div
-                              className={styles.delayInputWrap}
-                              title="Delay (ms) that elapses after this message before the next one is sent"
-                            >
-                              <Clock size={11} />
-                              <input
-                                type="number"
-                                min={0}
-                                step={50}
-                                className={styles.delayInput}
-                                value={message.delayMs ?? DEFAULT_DELAY_MS}
-                                onChange={(e) =>
-                                  updateMessageDelay(message.id, Math.max(0, parseInt(e.target.value, 10) || 0))
-                                }
-                              />
-                              <span className={styles.delayUnit}>ms</span>
-                            </div>
-                          )}
-                          <button
-                            className={styles.jsonViewerBtn}
-                            onClick={() => handleOpenJSONViewer(message.id)}
-                            disabled={!message.content || !isValidJSON(message.content)}
-                            title="View JSON as Table"
-                          >
-                            <Eye size={12} />
-                          </button>
-                          <button
-                            className={styles.moveMessageBtn}
-                            onClick={() => moveMessageUp(message.id)}
-                            disabled={index === 0}
-                            title="Move message up"
-                          >
-                            <ArrowUp size={12} />
-                          </button>
-                          <button
-                            className={styles.moveMessageBtn}
-                            onClick={() => moveMessageDown(message.id)}
-                            disabled={index === messages.length - 1}
-                            title="Move message down"
-                          >
-                            <ArrowDown size={12} />
-                          </button>
-                          <button
-                            className={styles.removeMessageBtn}
-                            onClick={() => removeMessage(message.id)}
-                            title="Remove this message"
-                          >
-                            <Trash2 size={12} />
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-
-                      <select
-                        value={message.messageKey}
-                        onChange={(e) => handleMessageKeyChange(message.id, e.target.value)}
-                        className={styles.messageKeySelect}
-                      >
-                        <option value="">-- Select Message Key --</option>
-                        {availableKeys.map((key) => (
-                          <option key={key} value={key}>
-                            {key}
-                          </option>
-                        ))}
-                      </select>
-
-                      <textarea
-                        value={message.content}
-                        onChange={(e) => updateMessage(message.id, 'content', e.target.value)}
-                        placeholder="Enter JSON content for the message..."
-                        className={styles.messageContentTextarea}
-                      />
-
-                      <div className={styles.messageActions}>
-                        {message.content && (
-                          <span
-                            className={`${styles.messageStatus} ${
-                              isValidJSON(message.content) ? styles.jsonValidSmall : styles.jsonInvalidSmall
-                            }`}
-                          >
-                            {isValidJSON(message.content) ? '✅ Valid JSON' : '❌ Invalid JSON'}
-                          </span>
-                        )}
-
-                        {message.messageKey === 'card' && message.content && isValidJSON(message.content) && (
-                          <button
-                            className={styles.cardEditButtonSmall}
-                            onClick={() => handleCardEdit(message.id)}
-                            title="Edit card selection"
-                          >
-                            🃏 Edit Card
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Save Progress Info */}
           {messages.length > 0 && (
             <div className={styles.progressInfo}>
               <div className={styles.progressText}>
@@ -377,15 +509,15 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
           )}
         </div>
 
-        {/* Modal Actions */}
         <div className={styles.modalActions}>
-          <button className={styles.btnSecondary} onClick={handleReset}>
+          <button type="button" className={styles.btnSecondary} onClick={handleReset}>
             🔄 Reset
           </button>
-          <button className={styles.btnSecondary} onClick={onClose}>
+          <button type="button" className={styles.btnSecondary} onClick={onClose}>
             Cancel
           </button>
           <button
+            type="button"
             className={styles.btnPrimary}
             onClick={handleSave}
             disabled={!canSave}
@@ -396,11 +528,17 @@ const ShortcutModal: React.FC<ShortcutModalProps> = ({
         </div>
       </div>
 
-      {/* JSON Viewer Modal */}
+      {/* Portal outside modal so backdrop-filter cannot trap position:fixed */}
+      {messagesExpanded && createPortal(messagesSection, document.body)}
+
       <JSONViewerModal
         isOpen={showJSONViewer}
         onClose={handleCloseJSONViewer}
-        jsonContent={currentViewingMessageId ? messages.find((m) => m.id === currentViewingMessageId)?.content || '' : ''}
+        jsonContent={
+          currentViewingMessageId
+            ? messages.find((m) => m.id === currentViewingMessageId)?.content || ''
+            : ''
+        }
         onUpdate={handleJSONUpdate}
       />
     </div>

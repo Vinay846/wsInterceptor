@@ -41,6 +41,8 @@ export interface MessageShortcut {
   lastUsed?: string;
   /** When true, messages are sent one-by-one using each message's `delayMs`. */
   sequentialSend?: boolean;
+  /** When true, shortcut stays at the top of the list. */
+  pinned?: boolean;
 }
 
 export interface ShortcutMessage {
@@ -132,6 +134,12 @@ export interface MessageControlProps {
   messageContent: string;
   responses: ResponsesData;
   bridgeMode: boolean;
+  /** Match shortcut card dimensions (used in expanded grid). */
+  compact?: boolean;
+  rawMode: boolean;
+  newMessageName: string;
+  onRawModeChange: (raw: boolean) => void;
+  onNewMessageNameChange: (name: string) => void;
   onKeyChange: (key: string) => void;
   onContentChange: (content: string) => void;
   onSendMessage: (raw?: boolean) => void;
@@ -146,11 +154,17 @@ export interface ShortcutSectionProps {
   shortcuts: MessageShortcut[];
   bridgeMode: boolean;
   devConnected: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+  /** Props for MessageControl, which is rendered inside shortcutScrollable. */
+  messageControlProps: Omit<MessageControlProps, 'compact'>;
   onCreateShortcut: () => void;
   onEditShortcut: (shortcut: MessageShortcut) => void;
   onSendShortcut: (shortcut: MessageShortcut) => void;
   onDuplicateShortcut: (shortcut: MessageShortcut) => void;
   onDeleteShortcut: (shortcutId: string) => void;
+  onPinShortcut: (shortcutId: string) => void;
+  onReorderShortcuts: (fromId: string, toId: string) => void;
 }
 
 export interface MessageColumnProps {

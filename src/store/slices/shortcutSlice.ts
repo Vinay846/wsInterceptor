@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { MessageShortcut, ShortcutMessage } from '../../types';
-import { loadShortcutsFromStorage } from '../middleware/localStorageMiddleware';
 
 interface ShortcutState {
   shortcuts: MessageShortcut[];
@@ -13,11 +12,9 @@ interface ShortcutState {
   cardUpdateTrigger: { messageId: string; cardData: any } | null;
 }
 
-// Load shortcuts from localStorage on initialization
-const loadedShortcuts = loadShortcutsFromStorage();
-
+// Shortcuts are loaded from shortcuts.json via the server API on app init
 const initialState: ShortcutState = {
-  shortcuts: loadedShortcuts,
+  shortcuts: [],
   editingShortcut: null,
   editingCardMessageId: null,
   currentEditingCardData: null,
@@ -61,8 +58,49 @@ const shortcutSlice = createSlice({
         shortcut.lastUsed = new Date().toISOString();
       }
     },
+
+    togglePinShortcut: (state, action: PayloadAction<string>) => {
+      const index = state.shortcuts.findIndex(s => s.id === action.payload);
+      if (index === -1) return;
+
+      const [shortcut] = state.shortcuts.splice(index, 1);
+      shortcut.pinned = !shortcut.pinned;
+
+      if (shortcut.pinned) {
+        const insertAt = state.shortcuts.findIndex(s => !s.pinned);
+        state.shortcuts.splice(insertAt === -1 ? state.shortcuts.length : insertAt, 0, shortcut);
+      } else {
+        let lastPinned = -1;
+        for (let i = 0; i < state.shortcuts.length; i++) {
+          if (state.shortcuts[i].pinned) lastPinned = i;
+        }
+        state.shortcuts.splice(lastPinned + 1, 0, shortcut);
+      }
+    },
+
+    reorderShortcuts: (state, action: PayloadAction<{ fromId: string; toId: string }>) => {
+      const { fromId, toId } = action.payload;
+      if (fromId === toId) return;
+
+      const fromIndex = state.shortcuts.findIndex(s => s.id === fromId);
+      const toIndex = state.shortcuts.findIndex(s => s.id === toId);
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const [moved] = state.shortcuts.splice(fromIndex, 1);
+      state.shortcuts.splice(toIndex, 0, moved);
+
+      // Preserve pin grouping after free-form drag.
+      const pinned = state.shortcuts.filter(s => s.pinned);
+      const unpinned = state.shortcuts.filter(s => !s.pinned);
+      state.shortcuts = [...pinned, ...unpinned];
+    },
     
     setShortcuts: (state, action: PayloadAction<MessageShortcut[]>) => {
+      state.shortcuts = action.payload;
+    },
+
+    // Hydrate from shortcuts.json without triggering a file write
+    hydrateShortcuts: (state, action: PayloadAction<MessageShortcut[]>) => {
       state.shortcuts = action.payload;
     },
     
@@ -139,7 +177,10 @@ export const {
   deleteShortcut,
   duplicateShortcut,
   updateShortcutLastUsed,
+  togglePinShortcut,
+  reorderShortcuts,
   setShortcuts,
+  hydrateShortcuts,
   setEditingShortcut,
   updateEditingShortcutMessage,
   setEditingCardMessageId,

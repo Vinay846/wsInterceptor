@@ -18,6 +18,8 @@ interface UseInitializationParams {
  * Runs the one-time mount effects: opening the WebSocket connections, the first
  * data refresh and loading the data-file configuration. Also tears the
  * connections down on unmount.
+ *
+ * Shortcuts are loaded once from store/index.ts (not here) to avoid duplicate GETs.
  */
 export const useInitialization = ({
   refs,

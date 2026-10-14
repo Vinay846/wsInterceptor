@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2100;
   animation: fadeIn 0.2s ease-out;
   backdrop-filter: blur(2px);
 }
@@ -30,6 +30,24 @@
   margin-bottom: 20px;
   padding-bottom: 12px;
   border-bottom: 2px solid #f1f5f9;
+  gap: 8px;
+}
+
+.modalHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.messageListPlaceholder {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 28px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  background: #f8fafc;
 }
 
 .modalTitle {
@@ -104,6 +122,24 @@
   border-radius: 12px;
   padding: 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.messageListSectionExpanded {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  border-radius: 0;
+  border: none;
+  padding: 16px 20px;
+  background: #f8fafc;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .messageListHeader {
@@ -111,18 +147,43 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .messageListTitle {
   font-size: 16px;
   font-weight: 600;
   color: #1e293b;
+  margin: 0;
 }
 
 .messageListHeaderActions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+}
+
+.expandBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.expandBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 .sequenceToggleBtn {
@@ -249,11 +310,52 @@
 }
 
 .messagesList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(8px, 1.2vw, 14px);
+  /* Size rows to content — never crush cards to fit the scroll area */
+  align-items: start;
+  align-content: start;
+  grid-auto-rows: min-content;
   max-height: 400px;
+  overflow-x: hidden;
   overflow-y: auto;
+  min-height: 0;
+}
+
+/* Modal width can fit 2 columns comfortably */
+@media (min-width: 640px) {
+  .messagesList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Compound selector so max-height from .messagesList / media queries cannot clip fullscreen */
+.messagesList.messagesListExpanded {
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .messagesList.messagesListExpanded {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .messagesList.messagesListExpanded {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .messagesList.messagesListExpanded {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .messageItem {
@@ -261,7 +363,17 @@
   border: 2px solid #e2e8f0;
   border-radius: 10px;
   padding: 12px;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  /* Grow with inner content (header, select, textarea, actions) */
+  min-height: min-content;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .messageItem:hover {
@@ -269,11 +381,53 @@
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
 }
 
+.dragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.dragOver {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+  transform: scale(1.01);
+}
+
 .messageItemHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.messageItemTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dragHandle {
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: grab;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.dragHandle:hover {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
 }
 
 .messageItemTitle {
@@ -297,7 +451,9 @@
 .messageHeaderButtons {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .jsonViewerBtn {
@@ -393,6 +549,8 @@
 .messageContentTextarea {
   width: 100%;
   height: 120px;
+  min-height: 100px;
+  flex: 1 1 auto;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
   padding: 8px;
   border: 2px solid #d1d5db;
@@ -584,5 +742,29 @@
 
   .messagesList {
     max-height: 300px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Expanded fullscreen must never inherit the 300px cap */
+  .messagesList.messagesListExpanded {
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .messageListHeader {
+    flex-wrap: wrap;
+  }
+
+  .messageListSectionExpanded {
+    padding: 12px;
+  }
+
+  .messageItemHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .messageHeaderButtons {
+    justify-content: flex-end;
   }
 }

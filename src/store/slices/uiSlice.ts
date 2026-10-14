@@ -17,6 +17,9 @@ interface UIState {
   // Loading states
   isUpdatingGameId: boolean;
   isSendingShortcut: boolean;
+
+  // When true, shortcut sends keep the current game/round ID (no auto-rotate)
+  persistRoundId: boolean;
   
   // Card update callback (non-serializable)
   cardUpdateCallback: ((messageId: string, cardData: any) => void) | null;
@@ -37,6 +40,7 @@ const initialState: UIState = {
   },
   isUpdatingGameId: false,
   isSendingShortcut: false,
+  persistRoundId: false,
   cardUpdateCallback: null,
   isFormDirty: false,
   lastSavedTime: null,
@@ -102,6 +106,14 @@ const uiSlice = createSlice({
     
     setIsSendingShortcut: (state, action: PayloadAction<boolean>) => {
       state.isSendingShortcut = action.payload;
+    },
+
+    setPersistRoundId: (state, action: PayloadAction<boolean>) => {
+      state.persistRoundId = action.payload;
+    },
+
+    togglePersistRoundId: (state) => {
+      state.persistRoundId = !state.persistRoundId;
     },
     
     // Card update callback (non-serializable)
@@ -173,6 +185,7 @@ const uiSlice = createSlice({
       state.toastMessage = null;
       state.isUpdatingGameId = false;
       state.isSendingShortcut = false;
+      state.persistRoundId = false;
       state.isFormDirty = false;
       state.roundStatus = {
         status: 'waiting',
@@ -194,6 +207,8 @@ export const {
   updateRoundStatus,
   setIsUpdatingGameId,
   setIsSendingShortcut,
+  setPersistRoundId,
+  togglePersistRoundId,
   setCardUpdateCallback,
   setIsFormDirty,
   setLastSavedTime,
